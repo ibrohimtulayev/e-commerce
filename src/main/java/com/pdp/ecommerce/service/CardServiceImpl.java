@@ -1,4 +1,8 @@
 package com.pdp.ecommerce.service;
 
-public class CardServiceImpl {
+import org.springframework.stereotype.Service;
+
+@Service
+
+public class CardServiceImpl implements CardService {
 }

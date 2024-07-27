@@ -1,4 +1,8 @@
 package com.pdp.ecommerce.service;
 
-public class RatingServiceImpl {
+import org.springframework.stereotype.Service;
+
+@Service
+
+public class RatingServiceImpl implements RatingService {
 }

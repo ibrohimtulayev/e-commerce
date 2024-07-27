@@ -1,4 +1,8 @@
 package com.pdp.ecommerce.service;
 
-public class OrderProductServiceImpl {
+import org.springframework.stereotype.Service;
+
+@Service
+
+public class OrderProductServiceImpl implements OrderProductService {
 }

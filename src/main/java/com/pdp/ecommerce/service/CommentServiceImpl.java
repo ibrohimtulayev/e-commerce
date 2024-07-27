@@ -1,4 +1,8 @@
 package com.pdp.ecommerce.service;
 
-public class CommentServiceImpl {
+import org.springframework.stereotype.Service;
+
+@Service
+
+public class CommentServiceImpl implements CommentService {
 }

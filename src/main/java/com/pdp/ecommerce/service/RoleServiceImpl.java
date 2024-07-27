@@ -1,4 +1,8 @@
 package com.pdp.ecommerce.service;
 
-public class RoleServiceImpl {
+import org.springframework.stereotype.Service;
+
+@Service
+
+public class RoleServiceImpl implements RoleService{
 }

@@ -1,4 +1,8 @@
 package com.pdp.ecommerce.service;
 
-public class DiscountServiceImpl {
+import org.springframework.stereotype.Service;
+
+@Service
+
+public class DiscountServiceImpl implements DiscountService{
 }
