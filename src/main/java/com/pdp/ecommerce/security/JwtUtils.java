@@ -21,6 +21,8 @@ import java.util.List;
 
 @Component
 public class JwtUtils {
+//    private final AuthenticationManager authenticationManager;
+
     public String generateToken(User user) {
         return "Bearer " + Jwts.builder()
                 .setSubject(user.getUsername())
@@ -75,4 +77,10 @@ public class JwtUtils {
                 .build()
                 .parseClaimsJws(token);
     }
+
+//    public User getUserFromAuthenticationManager(UserLoginDto userLoginDto){
+//        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+//                userLoginDto.email(), userLoginDto.password()));
+//        return (User) authenticate.getPrincipal();
+//    }
 }

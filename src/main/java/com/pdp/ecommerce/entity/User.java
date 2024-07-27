@@ -1,10 +1,8 @@
 package com.pdp.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -15,7 +13,8 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -24,9 +23,11 @@ public class User implements UserDetails {
     @Column(name = "id", nullable = false)
     private UUID id;
     private String email;
+    @JsonIgnore
     private String password;
     private Integer age;
     @ManyToMany
+    @JsonIgnore
     private List<Role> roles;
     @ManyToOne
     private Address address;
@@ -35,7 +36,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return this.roles;
     }
 
     @Override
