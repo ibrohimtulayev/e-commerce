@@ -51,6 +51,7 @@ public class JwtUtils {
         Random random = new Random();
         int code = random.nextInt(100, 1000);
         mailService.sendConfirmationCode(code, user.getUsername());
+        System.out.println(code);
         return "Confirmation " + Jwts.builder()
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60*10))
