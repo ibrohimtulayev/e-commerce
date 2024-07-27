@@ -7,20 +7,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pdp.ecommerce.entity.Role;
 import com.pdp.ecommerce.entity.User;
 import com.pdp.ecommerce.exception.TokenExpiredException;
+import com.pdp.ecommerce.service.MailService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 @Component
+@RequiredArgsConstructor
 public class JwtUtils {
+    private final MailService mailService;
 
     public String generateToken(User user) {
         return "Bearer " + Jwts.builder()
@@ -38,6 +43,19 @@ public class JwtUtils {
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60*24*7))
                 .claim("roles", user.getRoles())
+                .signWith(getPrivateKey())
+                .compact();
+    }
+
+    public String generateConfirmationToken(User user) {
+        Random random = new Random();
+        int code = random.nextInt(100, 1000);
+        mailService.sendConfirmationCode(code, user.getUsername());
+        return "Confirmation " + Jwts.builder()
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60*10))
+                .claim("code", code)
+                .claim("user", user)
                 .signWith(getPrivateKey())
                 .compact();
     }
@@ -70,6 +88,15 @@ public class JwtUtils {
         return roles;
     }
 
+    public User getUser(String token) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        Jws<Claims> claimsJws = getClaims(token);
+        String json = mapper.writeValueAsString(claimsJws.getBody().get("user"));
+        User user = mapper.readValue(json, new TypeReference<User>() {});
+        return user;
+    }
+
     private Jws<Claims> getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getPrivateKey())
@@ -77,4 +104,17 @@ public class JwtUtils {
                 .parseClaimsJws(token);
     }
 
+    public boolean checkVerificationCode(String code, String token) {
+        String codeFromToken = getVerificationCodeFromToken(token);
+        return  code.equals(codeFromToken);
+    }
+
+    private String getVerificationCodeFromToken(String token) {
+        try {
+            Jws<Claims> claims = getClaims(token);
+            return String.valueOf(claims.getBody().get("code", Integer.class));
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid verification code");
+        }
+    }
 }

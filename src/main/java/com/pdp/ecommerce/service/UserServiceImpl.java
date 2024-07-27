@@ -1,6 +1,8 @@
 package com.pdp.ecommerce.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pdp.ecommerce.entity.User;
+import com.pdp.ecommerce.exception.WrongConfirmationCodeException;
 import com.pdp.ecommerce.mapper.UserMapper;
 import com.pdp.ecommerce.model.dto.TokenDto;
 import com.pdp.ecommerce.model.dto.UserLoginDto;
@@ -8,6 +10,7 @@ import com.pdp.ecommerce.model.dto.UserRegisterDto;
 import com.pdp.ecommerce.repository.UserRepository;
 import com.pdp.ecommerce.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
@@ -49,8 +52,26 @@ public class UserServiceImpl implements UserService {
     public HttpEntity<?> register(UserRegisterDto userRegisterDto) {
         User user = userMapper.toEntity(userRegisterDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user = userRepository.save(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        String token = jwtUtils.generateConfirmationToken(user);
+        return ResponseEntity.status(HttpStatus.OK).body(token);
+    }
+
+    @Override
+    public HttpEntity<?> checkVerificationCode(String code, String header) throws JsonProcessingException, BadRequestException {
+        if (header == null || !header.startsWith("Confirmation")) {
+            throw new RuntimeException("Expected TempAuthorization token in the header!");
+        }
+        String token = header.substring(13);
+        User user = jwtUtils.getUser(token);
+        if(jwtUtils.checkVerificationCode(code, token)){
+            User savedUser = userRepository.save(user);
+            TokenDto tokenDto = new TokenDto(
+                    jwtUtils.generateToken(savedUser),
+                    jwtUtils.generateRefreshToken(savedUser));
+            return ResponseEntity.status(HttpStatus.CREATED).body(tokenDto);
+        }else {
+            throw new WrongConfirmationCodeException("Entered code is wrong! Please, try again!");
+        }
     }
 
     @Override
@@ -64,4 +85,5 @@ public class UserServiceImpl implements UserService {
         );
         return ResponseEntity.ok(tokenDto);
     }
+
 }
