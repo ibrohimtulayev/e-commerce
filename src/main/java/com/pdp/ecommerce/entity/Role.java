@@ -17,6 +17,7 @@ import java.util.UUID;
 public class Role implements GrantedAuthority {
     @Id
     @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @Enumerated(EnumType.STRING)
     private RoleName roleName;
