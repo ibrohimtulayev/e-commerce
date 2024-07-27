@@ -64,4 +64,9 @@ public class UserServiceImpl implements UserService {
         );
         return ResponseEntity.ok(tokenDto);
     }
+
+    @Override
+    public void save(User user) {
+        userRepository.save(user);
+    }
 }

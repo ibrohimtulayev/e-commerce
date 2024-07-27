@@ -22,6 +22,6 @@ public class Card {
     private UUID id;
     private String name;
     private LocalDate expiryDate;
-    private Integer cardNumber;
+    private String cardNumber;
     private Integer cvv;
 }
