@@ -4,5 +4,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 
-public class RatingServiceImpl {
+public class RatingServiceImpl implements RatingService {
 }
