@@ -17,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,8 +25,14 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private PasswordEncoder passwordEncoder;
+    private AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
-    private  AuthenticationManager authenticationManager;
+
+    @Autowired
+    public void setPasswordEncoder(@Lazy PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Autowired
     public void setAuthenticationManager(@Lazy AuthenticationManager authenticationManager) {
@@ -35,12 +42,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(()->new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Override
     public HttpEntity<?> register(UserRegisterDto userRegisterDto) {
         User user = userMapper.toEntity(userRegisterDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user = userRepository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
@@ -50,7 +58,6 @@ public class UserServiceImpl implements UserService {
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 userLoginDto.email(), userLoginDto.password()));
         User user = (User) authenticate.getPrincipal();
-//        User user = jwtUtils.getUserFromAuthenticationManager(userLoginDto);
         TokenDto tokenDto = new TokenDto(
                 jwtUtils.generateToken(user),
                 jwtUtils.generateRefreshToken(user)
