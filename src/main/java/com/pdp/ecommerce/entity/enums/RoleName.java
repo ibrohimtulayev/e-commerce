@@ -1,4 +1,4 @@
-package com.pdp.ecommerce.model.enums;
+package com.pdp.ecommerce.entity.enums;
 
 public enum RoleName {
     ROLE_ADMIN,

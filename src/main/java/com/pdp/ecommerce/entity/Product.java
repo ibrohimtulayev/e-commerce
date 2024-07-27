@@ -1,7 +1,7 @@
-package com.pdp.ecommerce.model;
+package com.pdp.ecommerce.entity;
 
-import com.pdp.ecommerce.model.enums.Gender;
-import com.pdp.ecommerce.model.enums.SizeEnum;
+import com.pdp.ecommerce.entity.enums.Gender;
+import com.pdp.ecommerce.entity.enums.SizeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

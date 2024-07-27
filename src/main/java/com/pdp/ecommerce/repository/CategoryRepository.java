@@ -1,6 +1,6 @@
 package com.pdp.ecommerce.repository;
 
-import com.pdp.ecommerce.model.Category;
+import com.pdp.ecommerce.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

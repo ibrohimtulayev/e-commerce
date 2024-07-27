@@ -1,15 +1,13 @@
-package com.pdp.ecommerce.model;
+package com.pdp.ecommerce.entity;
 
-import com.pdp.ecommerce.model.enums.OrderStatus;
 import jakarta.persistence.*;
-import jdk.jfr.Timestamp;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Builder
@@ -17,20 +15,21 @@ import java.util.UUID;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "orders")
-public class Order {
+@Table(name = "payment")
+public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
     @ManyToOne
     private User user;
-    @Enumerated(EnumType.STRING)
-    private OrderStatus status;
-    private LocalDateTime deliveryTime;
+    private Double amount;
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    private LocalDate paymentDate;
+    @OneToOne
+    private Order order;
 
-
+    @ManyToOne
+    private Card card;
 
 }

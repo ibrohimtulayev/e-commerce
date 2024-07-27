@@ -1,4 +1,4 @@
-package com.pdp.ecommerce.model;
+package com.pdp.ecommerce.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,22 +14,17 @@ import java.util.UUID;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "category")
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
-    private String email;
-    private String password;
-    private Integer age;
-    @ManyToMany
-    private List<Role> roles;
-    @ManyToOne
-    private Address address;
-    @OneToMany
-    private List<Product>favouriteProducts;
-
-
+    private String name;
+    private UUID parentCategoryId;
+    @ElementCollection
+    private List<UUID> childrenCategoryIds;
+    @OneToMany(mappedBy = "category")
+    private List<Product> products;
 
 }

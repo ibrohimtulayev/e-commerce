@@ -1,4 +1,4 @@
-package com.pdp.ecommerce.model;
+package com.pdp.ecommerce.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,13 +13,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "address")
-public class Address {
+@Table(name = "rating")
+public class Rating {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
-    private Double latitude;
-    private Double longitude;
-
+    private Integer grade;
+    @OneToOne
+    private User user;
 }
