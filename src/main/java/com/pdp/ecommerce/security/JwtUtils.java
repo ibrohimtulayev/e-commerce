@@ -50,6 +50,7 @@ public class JwtUtils {
     public String generateConfirmationToken(User user) {
         Random random = new Random();
         int code = random.nextInt(100, 1000);
+        System.out.println(code);  //for test purposes
         mailService.sendConfirmationCode(code, user.getUsername());
         System.out.println(code);
         return "Confirmation " + Jwts.builder()

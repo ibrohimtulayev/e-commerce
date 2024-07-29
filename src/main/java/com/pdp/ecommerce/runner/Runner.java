@@ -82,7 +82,7 @@ public class Runner implements CommandLineRunner {
                     .cardNumber("9876543210987654").cvv(456).build();
             cardService.save(card1);
             cardService.save(card2);
-
+            
             // Create Categories
             Category category1 = Category.builder().name("Clothing").build();
             Category category2 = Category.builder().name("Accessories").parentCategoryId(category1.getId()).build();

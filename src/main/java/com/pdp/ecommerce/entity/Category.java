@@ -24,7 +24,7 @@ public class Category {
     private UUID parentCategoryId;
     @ElementCollection
     private List<UUID> childrenCategoryIds;
-    @OneToMany(mappedBy = "category")
-    private List<Product> products;
+//    @OneToMany(mappedBy = "category")
+//    private List<Product> products;  causes cycle or use JsonIgnore
 
 }
