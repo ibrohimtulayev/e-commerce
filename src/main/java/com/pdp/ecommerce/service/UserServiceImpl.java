@@ -59,16 +59,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public HttpEntity<?> checkVerificationCode(String code, String header) throws JsonProcessingException, BadRequestException {
         if (header == null || !header.startsWith("Confirmation")) {
-            throw new RuntimeException("Expected TempAuthorization token in the header!");
+            throw new RuntimeException("Expected Confirmation token in the header!");
         }
         String token = header.substring(13);
         User user = jwtUtils.getUser(token);
         if(jwtUtils.checkVerificationCode(code, token)){
-            User savedUser = userRepository.save(user);
-            TokenDto tokenDto = new TokenDto(
-                    jwtUtils.generateToken(savedUser),
-                    jwtUtils.generateRefreshToken(savedUser));
-            return ResponseEntity.status(HttpStatus.CREATED).body(tokenDto);
+            userRepository.save(user);
+//            TokenDto tokenDto = new TokenDto(
+//                    jwtUtils.generateToken(savedUser),
+//                    jwtUtils.generateRefreshToken(savedUser));
+            return ResponseEntity.status(HttpStatus.CREATED).body("success");
         }else {
             throw new WrongConfirmationCodeException("Entered code is wrong! Please, try again!");
         }

@@ -1,6 +1,5 @@
 package com.pdp.ecommerce.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,11 +22,9 @@ public class User implements UserDetails {
     @Column(name = "id", nullable = false)
     private UUID id;
     private String email;
-    @JsonIgnore
     private String password;
     private Integer age;
     @ManyToMany
-    @JsonIgnore
     private List<Role> roles;
     @ManyToOne
     private Address address;
