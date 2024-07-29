@@ -20,7 +20,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> getRandomProducts(int amount) {
+    public List<Product> getRandomProducts() {
+        int amount = 3;
         return productRepository.getRandomProducts(amount);
     }
 
