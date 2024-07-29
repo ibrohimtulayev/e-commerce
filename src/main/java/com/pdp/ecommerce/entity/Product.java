@@ -35,9 +35,6 @@ public class Product {
     @ElementCollection
     private List<String>colors;
 
-    @OneToMany
-    private List<Discount>discounts;
-
     @ManyToOne
     private Category category;
 
@@ -45,5 +42,6 @@ public class Product {
     private List<Rating>ratings;
     @OneToMany
     private List<Comment>comments;
+
 
 }
