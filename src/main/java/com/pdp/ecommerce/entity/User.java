@@ -23,7 +23,7 @@ public class User implements UserDetails {
     @Column(name = "id", nullable = false)
     private UUID id;
     private String email;
-    @JsonIgnore
+
     private String password;
     private Integer age;
     @ManyToMany
