@@ -10,6 +10,6 @@ import java.util.UUID;
 
 public interface CategoryRepository extends JpaRepository<Category, UUID> {
 
-    @Query(nativeQuery = true,value = "select * from category order by random() limit :amount")
+    @Query(nativeQuery = true,value = "select * from category where category.parent_category_id IS NULL order by random() limit :amount")
     List<Category> getRandomCategories(@Param("amount") int amount);
 }

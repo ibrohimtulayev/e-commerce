@@ -19,7 +19,7 @@ public class ProductController {
 
     @GetMapping
     public HttpEntity<?> getRandomProduct() {
-        List<Product> products = productService.getRandomProducts(3);
+        List<Product> products = productService.getRandomProducts();
         return ResponseEntity.ok(products);
     }
 

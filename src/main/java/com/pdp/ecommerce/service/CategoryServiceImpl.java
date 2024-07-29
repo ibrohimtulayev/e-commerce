@@ -18,7 +18,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<Category> getRandomCategories(int amount) {
+    public List<Category> getRandomCategories() {
+        int amount = 4;
        return categoryRepository.getRandomCategories(amount);
     }
 }

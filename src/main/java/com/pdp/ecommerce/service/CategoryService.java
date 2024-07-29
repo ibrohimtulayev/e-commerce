@@ -9,5 +9,5 @@ import java.util.List;
 public interface CategoryService {
     void save(Category category);
 
-    List<Category> getRandomCategories(int amount);
+    List<Category> getRandomCategories();
 }

@@ -11,7 +11,7 @@ import java.util.List;
 public interface ProductService {
     void save(Product product);
 
-    List<Product> getRandomProducts(int amount);
+    List<Product> getRandomProducts();
 
     List<Product> findByNameAndGender(SearchDto searchDto);
 
