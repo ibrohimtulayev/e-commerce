@@ -43,5 +43,4 @@ public class Product {
     @OneToMany
     private List<Comment>comments;
 
-
 }

@@ -1,5 +1,6 @@
 package com.pdp.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,9 @@ public class Category {
     private UUID parentCategoryId;
     @ElementCollection
     private List<UUID> childrenCategoryIds;
-//    @OneToMany(mappedBy = "category")
-//    private List<Product> products;  causes cycle or use JsonIgnore
+    
+    @JsonIgnore
+    @OneToMany(mappedBy = "category")
+    private List<Product> products;
 
 }

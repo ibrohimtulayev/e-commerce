@@ -35,7 +35,6 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles;
     }
-
     @Override
     public String getUsername() {
         return this.email;

@@ -13,7 +13,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @Query(value = "SELECT * FROM product ORDER BY RANDOM() LIMIT :amount", nativeQuery = true)
     List<Product> getRandomProducts(@Param("amount") int amount);
 
-    @Query("SELECT p FROM Product p WHERE p.gender = :gender AND p.name ILIKE :keyword")
-    List<Product> findByNameAndGender(@Param("keyword") String keyword, @Param("gender") Gender gender);
 
+    @Query("SELECT p FROM Product p WHERE p.gender = :gender AND FUNCTION('similarity', p.name, :keyword) > 0.2")
+    List<Product> findByNameAndGender(@Param("keyword") String keyword, @Param("gender") Gender gender);
 }
