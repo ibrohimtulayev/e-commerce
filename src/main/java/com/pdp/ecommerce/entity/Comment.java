@@ -22,5 +22,4 @@ public class Comment {
     private User user;
     @ManyToOne
     private Product product;
-
 }

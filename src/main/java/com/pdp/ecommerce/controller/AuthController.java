@@ -5,6 +5,7 @@ import com.pdp.ecommerce.model.dto.ConfirmationCodeDto;
 import com.pdp.ecommerce.model.dto.UserLoginDto;
 import com.pdp.ecommerce.model.dto.UserRegisterDto;
 import com.pdp.ecommerce.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpEntity;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final UserService userService;
     @PostMapping("register")
-    public HttpEntity<?> registration(@RequestBody UserRegisterDto userRegisterDto){
+    public HttpEntity<?> registration(@RequestBody @Valid UserRegisterDto userRegisterDto){
         return userService.register(userRegisterDto);
     }
 
