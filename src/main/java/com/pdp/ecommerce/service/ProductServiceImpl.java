@@ -1,7 +1,6 @@
 package com.pdp.ecommerce.service;
 
 import com.pdp.ecommerce.entity.Product;
-import com.pdp.ecommerce.model.dto.SearchDto;
 import com.pdp.ecommerce.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,9 +24,5 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.getRandomProducts(amount);
     }
 
-    @Override
-    public List<Product> findByNameAndGender(SearchDto searchDto) {
-        return productRepository.findByNameAndGender(searchDto.keyword(), searchDto.gender());
-    }
 
 }
