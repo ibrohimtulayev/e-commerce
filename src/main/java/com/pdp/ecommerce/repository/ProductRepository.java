@@ -11,5 +11,4 @@ import java.util.UUID;
 public interface ProductRepository extends JpaRepository<Product, UUID> {
     @Query(value = "SELECT * FROM product LIMIT :amount", nativeQuery = true)
     List<Product> getRandomProducts(@Param("amount") int amount);
-
 }

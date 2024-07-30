@@ -8,9 +8,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,10 +20,9 @@ import java.util.List;
 public class CategoryController {
     private final CategoryService categoryService;
 
-    @GetMapping
-    public HttpEntity<?> getRandomCategories(){
-       List<Category> categories =categoryService.getRandomCategories();
-       return ResponseEntity.ok(categories);
+
+    @GetMapping("/random")
+    public HttpEntity<?> getRandomCategories() {
+        return ResponseEntity.ok(categoryService.getRandomCategories());
     }
-    
 }

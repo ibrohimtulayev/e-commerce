@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,5 +22,10 @@ public class CategoryServiceImpl implements CategoryService {
     public List<Category> getRandomCategories() {
         int amount = 4;
        return categoryRepository.getRandomCategories(amount);
+    }
+
+    @Override
+    public Category findById(UUID categoryId) {
+        return categoryRepository.findById(categoryId).get();
     }
 }
