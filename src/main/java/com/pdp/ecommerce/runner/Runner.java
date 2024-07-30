@@ -1,10 +1,9 @@
 package com.pdp.ecommerce.runner;
 
 import com.pdp.ecommerce.entity.*;
-import com.pdp.ecommerce.entity.enums.Gender;
+import com.pdp.ecommerce.entity.enums.GenderEnum;
 import com.pdp.ecommerce.entity.enums.OrderStatus;
 import com.pdp.ecommerce.entity.enums.RoleName;
-import com.pdp.ecommerce.entity.enums.SizeEnum;
 import com.pdp.ecommerce.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +36,7 @@ public class Runner implements CommandLineRunner {
     private String ddl;
 
     @Override
-    public void run(String... args)  {
+    public void run(String... args) {
 
 
         if (ddl.equals("create")) {
@@ -82,7 +81,7 @@ public class Runner implements CommandLineRunner {
                     .cardNumber("9876543210987654").cvv(456).build();
             cardService.save(card1);
             cardService.save(card2);
-            
+
             // Create Categories
             Category category1 = Category.builder().name("Clothing").build();
             Category category2 = Category.builder().name("Accessories").parentCategoryId(category1.getId()).build();
@@ -91,12 +90,48 @@ public class Runner implements CommandLineRunner {
 
 
             // Create Products
-            Product product1 = Product.builder().name("T-Shirt").description("Cotton T-Shirt")
-                    .price(19.99).gender(Gender.FEMALE).sizes(List.of(SizeEnum.M, SizeEnum.L)).colors(List.of("Red", "Blue")).category(category1).build();
-            Product product2 = Product.builder().name("Watch").description("Stylish wristwatch")
-                    .price(49.99).gender(Gender.MALE).category(category2).build();
+            Product product1 = Product.builder()
+                    .name("T-Shirt")
+                    .description("Cotton T-Shirt")
+                    .productDetails(ProductDetails
+                            .builder()
+                            .size("M")
+                            .price(19.99)
+                            .quantity(10)
+                            .color("RED")
+                            .gender(GenderEnum.MALE)
+                            .build())
+                    .category(category1)
+
+                    .build();
+            Product product2 = Product.builder()
+                    .name("T-Shirt")
+                    .description("Cotton T-Shirt")
+                    .productDetails(ProductDetails.builder()
+                            .size("L")
+                            .price(19.99)
+                            .color("BLUE")
+                            .quantity(20)
+                            .gender(GenderEnum.MALE)
+                            .build())
+                    .category(category1)
+                    .build();
+
+            Product product3 = Product.builder()
+                    .name("Watch")
+                    .description("Stylish wristwatch")
+                    .productDetails(ProductDetails.builder()
+                            .size("50")
+                            .color("WHITE")
+                            .gender(GenderEnum.FEMALE)
+                            .quantity(5)
+                            .price(49.99)
+                            .build())
+                    .category(category2)
+                    .build();
             productService.save(product1);
             productService.save(product2);
+            productService.save(product3);
 
             // Create Discounts
             Discount discount = Discount.builder().startDate(LocalDateTime.now())
@@ -129,7 +164,6 @@ public class Runner implements CommandLineRunner {
             orderProductService.save(orderProduct2);
         }
     }
-
 }
 
 

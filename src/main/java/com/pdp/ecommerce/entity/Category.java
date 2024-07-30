@@ -1,19 +1,15 @@
 package com.pdp.ecommerce.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "category")
 public class Category {
@@ -23,11 +19,8 @@ public class Category {
     private UUID id;
     private String name;
     private UUID parentCategoryId;
-    @ElementCollection
-    private List<UUID> childrenCategoryIds;
-    
-    @JsonIgnore
-    @OneToMany(mappedBy = "category")
-    private List<Product> products;
+//    @OneToMany(mappedBy = "category")
+//    @JsonBackReference
+//    private List<Product> products; // causes cycle
 
 }

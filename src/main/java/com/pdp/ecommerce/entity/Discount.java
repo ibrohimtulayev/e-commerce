@@ -27,5 +27,4 @@ public class Discount {
     private List<Category> categories;
     @OneToMany
     private List<Product> products;
-
 }

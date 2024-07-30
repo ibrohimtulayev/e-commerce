@@ -1,6 +1,6 @@
 package com.pdp.ecommerce.model.dto;
 
-import com.pdp.ecommerce.entity.enums.Gender;
+import com.pdp.ecommerce.entity.enums.GenderEnum;
 
-public record SearchDto(String keyword, Gender gender) {
+public record SearchDto(String keyword, GenderEnum genderEnum) {
 }

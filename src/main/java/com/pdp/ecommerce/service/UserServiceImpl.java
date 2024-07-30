@@ -65,9 +65,6 @@ public class UserServiceImpl implements UserService {
         User user = jwtUtils.getUser(token);
         if(jwtUtils.checkVerificationCode(code, token)){
             userRepository.save(user);
-//            TokenDto tokenDto = new TokenDto(
-//                    jwtUtils.generateToken(savedUser),
-//                    jwtUtils.generateRefreshToken(savedUser));
             return ResponseEntity.status(HttpStatus.CREATED).body("success");
         }else {
             throw new WrongConfirmationCodeException("Entered code is wrong! Please, try again!");
