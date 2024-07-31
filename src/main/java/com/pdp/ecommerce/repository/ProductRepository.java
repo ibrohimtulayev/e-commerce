@@ -27,8 +27,9 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
 
     @Query(value = """
-            SELECT p.*FROM product p
-            JOIN product_details pd ON p.product_details_id = pd.id
+            SELECT p.* FROM product p
+            JOIN product_product_details ppd on p.id = ppd.product_id 
+            JOIN product_details pd ON ppd.product_details_id = pd.id
             WHERE pd.gender = CAST(:gender AS VARCHAR)
             AND SIMILARITY(p.name, :keyword) > 0.2;
             """,nativeQuery = true)
