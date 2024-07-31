@@ -121,10 +121,10 @@ public class Runner implements CommandLineRunner {
                     .build();
 
             Product savedProduct = productService.save(product);
-            List<User> users = userService.findAllUsersByRole(RoleEnum.ROLE_USER.name());
 
-            generateRating(savedProduct, users);
-            generateComments(savedProduct, users);
+//            List<User> users = userService.findAllUsersByRole(RoleEnum.ROLE_USER.name());
+//            generateRating(savedProduct, users);
+//            generateComments(savedProduct, users);
         }
     }
 

@@ -1,18 +1,22 @@
 package com.pdp.ecommerce.service;
 
 import com.pdp.ecommerce.entity.Product;
+import com.pdp.ecommerce.entity.User;
+import com.pdp.ecommerce.model.dto.SearchDto;
 import com.pdp.ecommerce.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
-
+    private final UserService userService;
 
     @Override
     public Product save(Product product) {
@@ -29,7 +33,7 @@ public class ProductServiceImpl implements ProductService {
     public List<Product> getRandomProductsByCategoryId(UUID id, Integer amount) {
         return productRepository.getRandomProductsByCategoryId(id, amount);
     }
-}
+
     @Override
     public List<Product> findByNameAndGender(SearchDto searchDto) {
         String keyword = searchDto.keyword();
