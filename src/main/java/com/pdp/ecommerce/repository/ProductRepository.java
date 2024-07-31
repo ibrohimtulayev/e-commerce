@@ -26,6 +26,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     Optional<Product> findOneFavouriteProductByUserId(@Param("userId") UUID userId);
 
 
+    //CREATE EXTENSION pg_trgm ;  use this command
     @Query(value = """
             SELECT p.* FROM product p
             JOIN product_product_details ppd on p.id = ppd.product_id 

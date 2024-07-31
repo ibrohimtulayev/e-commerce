@@ -19,6 +19,8 @@ import java.util.*;
 @Component
 @RequiredArgsConstructor
 public class Runner implements CommandLineRunner {
+    private static final Logger logger = LoggerFactory.getLogger(Runner.class);
+
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final UserService userService;
@@ -30,7 +32,6 @@ public class Runner implements CommandLineRunner {
     private final RatingService ratingService;
     private final CommentService commentService;
 
-
     @Value("${spring.jpa.hibernate.ddl-auto}")
     private String ddl;
 
@@ -38,17 +39,17 @@ public class Runner implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         if (ddl.equals("create")) {
-            List<User> users = generateRoleUserAndCards();
-            generateCategoryProductAndProductDetails(users);
-
+            generateRoleUserAndCards();
+            generateCategoryProductAndProductDetails();
         }
     }
 
-    private List<User> generateRoleUserAndCards() {
+    private void generateRoleUserAndCards() {
+        logger.info("Generating roles, users, and cards...");
+
         Role adminRole = Role.builder()
                 .name(RoleEnum.ROLE_ADMIN)
                 .build();
-
         Role userRole = Role.builder()
                 .name(RoleEnum.ROLE_USER)
                 .build();
@@ -63,16 +64,13 @@ public class Runner implements CommandLineRunner {
                 .build();
         userService.save(admin);
 
-        List<User> users = new ArrayList<>();
-
         for (int i = 1; i <= 10; i++) {
             User user = User.builder()
                     .email("user%d@gmail.com".formatted(i))
                     .password(passwordEncoder.encode("1221"))
                     .roles(List.of(userRole))
                     .build();
-
-            users.add(userService.save(user));
+            userService.save(user);
         }
 
         // Create Cards
@@ -82,23 +80,25 @@ public class Runner implements CommandLineRunner {
                 .cardNumber("9876543210987654").cvv(456).build();
         cardService.save(card1);
         cardService.save(card2);
-
-        return users;
-
     }
 
-    private void generateCategoryProductAndProductDetails(List<User> users) {
-        for (int i = 0; i < 5; i++) {
+    private void generateCategoryProductAndProductDetails() {
+        logger.info("Generating categories, products, and product details...");
+        int totalProducts = 100;
+        int categoriesCount = 5;
+        int productsPerCategory = totalProducts / categoriesCount;
+
+        for (int i = 0; i < categoriesCount; i++) {
             Category parentCategory = createCategory();
             categoryService.save(parentCategory);
 
-            for (int j = 0; j < 5; j++) {
+            for (int j = 0; j < 1; j++) {
                 Category subCategory = createCategory();
                 subCategory.setParentCategoryId(parentCategory.getId());
                 Category savedSubCategory = categoryService.save(subCategory);
 
                 // Generate products for each subcategory
-                generateProducts(savedSubCategory, users);
+                generateProducts(savedSubCategory, productsPerCategory);
             }
         }
     }
@@ -110,12 +110,14 @@ public class Runner implements CommandLineRunner {
                 .build();
     }
 
-    private void generateProducts(Category category, List<User> users) {
-        for (int i = 0; i < 2; i++) {
+    private void generateProducts(Category category, int count) {
+        logger.info("Generating products for category: {}", category.getName());
+        for (int i = 0; i < count; i++) {
             List<ProductDetails> productDetailsList = createProductDetailsList();
             List<ProductDetails> savedProductDetailsList = productDetailsService.saveAll(productDetailsList);
 
             Product product = Product.builder()
+                    .id(UUID.randomUUID())
                     .name(faker.commerce().productName())
                     .description(faker.lorem().sentence())
                     .category(category)
@@ -124,6 +126,7 @@ public class Runner implements CommandLineRunner {
 
             Product savedProduct = productService.save(product);
 
+            List<User> users = userService.findAllUsersByRole(RoleEnum.ROLE_USER.name());
             generateRating(savedProduct, users);
             generateComments(savedProduct, users);
         }
@@ -158,7 +161,7 @@ public class Runner implements CommandLineRunner {
                         .color(color)
                         .gender(GenderEnum.values()[faker.number().numberBetween(0, GenderEnum.values().length)])
                         .quantity(faker.number().numberBetween(5, 10))
-                        .price(Double.parseDouble(faker.commerce().price(10, 40)))
+                        .price(Double.parseDouble(faker.commerce().price()))
                         .build();
                 productDetailsList.add(productDetails);
             }
@@ -170,17 +173,19 @@ public class Runner implements CommandLineRunner {
     private void generateRating(Product product, List<User> users) {
         Random random = new Random();
         for (User user : users) {
-            Rating rating = Rating.builder()
-                    .grade(random.nextInt(1, 6))
-                    .product(product)
-                    .user(user)
-                    .build();
-            ratingService.save(rating);
+            if (ratingService.findByUser(user) == null) {
+                Rating rating = Rating.builder()
+                        .grade(random.nextInt(1, 6))
+                        .product(product)
+                        .user(user)
+                        .build();
+                ratingService.save(rating);
+            }
         }
     }
 
-
     private void generateComments(Product product, List<User> users) {
+        logger.info("Generating comments for product: {}", product.getName());
         for (User user : users) {
             for (int i = 0; i < 3; i++) {
                 Comment comment = Comment.builder()
