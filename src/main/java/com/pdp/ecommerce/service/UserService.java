@@ -22,7 +22,7 @@ public interface UserService {
 
     HttpEntity<?> checkVerificationCode(String code, String header) throws JsonProcessingException, BadRequestException;
 
-    void save(User user);
+    User save(User user);
 
     List<User> findAllUsersByRole(String role);
 

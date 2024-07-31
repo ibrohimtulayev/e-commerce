@@ -38,13 +38,13 @@ public class Runner implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         if (ddl.equals("create")) {
-            generateRoleUserAndCards();
-            generateCategoryProductAndProductDetails();
+            List<User> users = generateRoleUserAndCards();
+            generateCategoryProductAndProductDetails(users);
 
         }
     }
 
-    private void generateRoleUserAndCards() {
+    private List<User> generateRoleUserAndCards() {
         Role adminRole = Role.builder()
                 .name(RoleEnum.ROLE_ADMIN)
                 .build();
@@ -63,6 +63,8 @@ public class Runner implements CommandLineRunner {
                 .build();
         userService.save(admin);
 
+        List<User> users = new ArrayList<>();
+
         for (int i = 1; i <= 10; i++) {
             User user = User.builder()
                     .email("user%d@gmail.com".formatted(i))
@@ -70,7 +72,7 @@ public class Runner implements CommandLineRunner {
                     .roles(List.of(userRole))
                     .build();
 
-            userService.save(user);
+            users.add(userService.save(user));
         }
 
         // Create Cards
@@ -81,10 +83,11 @@ public class Runner implements CommandLineRunner {
         cardService.save(card1);
         cardService.save(card2);
 
+        return users;
 
     }
 
-    private void generateCategoryProductAndProductDetails() {
+    private void generateCategoryProductAndProductDetails(List<User> users) {
         for (int i = 0; i < 5; i++) {
             Category parentCategory = createCategory();
             categoryService.save(parentCategory);
@@ -95,7 +98,7 @@ public class Runner implements CommandLineRunner {
                 Category savedSubCategory = categoryService.save(subCategory);
 
                 // Generate products for each subcategory
-                generateProducts(savedSubCategory);
+                generateProducts(savedSubCategory, users);
             }
         }
     }
@@ -107,13 +110,12 @@ public class Runner implements CommandLineRunner {
                 .build();
     }
 
-    private void generateProducts(Category category) {
-        for (int i = 0; i < 40; i++) {
+    private void generateProducts(Category category, List<User> users) {
+        for (int i = 0; i < 2; i++) {
             List<ProductDetails> productDetailsList = createProductDetailsList();
             List<ProductDetails> savedProductDetailsList = productDetailsService.saveAll(productDetailsList);
 
             Product product = Product.builder()
-                    .id(UUID.randomUUID())
                     .name(faker.commerce().productName())
                     .description(faker.lorem().sentence())
                     .category(category)
@@ -122,9 +124,8 @@ public class Runner implements CommandLineRunner {
 
             Product savedProduct = productService.save(product);
 
-//            List<User> users = userService.findAllUsersByRole(RoleEnum.ROLE_USER.name());
-//            generateRating(savedProduct, users);
-//            generateComments(savedProduct, users);
+            generateRating(savedProduct, users);
+            generateComments(savedProduct, users);
         }
     }
 
@@ -157,7 +158,7 @@ public class Runner implements CommandLineRunner {
                         .color(color)
                         .gender(GenderEnum.values()[faker.number().numberBetween(0, GenderEnum.values().length)])
                         .quantity(faker.number().numberBetween(5, 10))
-                        .price(Double.parseDouble(faker.commerce().price()))
+                        .price(Double.parseDouble(faker.commerce().price(10, 40)))
                         .build();
                 productDetailsList.add(productDetails);
             }
@@ -192,5 +193,3 @@ public class Runner implements CommandLineRunner {
         }
     }
 }
-
-

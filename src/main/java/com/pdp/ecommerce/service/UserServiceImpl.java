@@ -3,8 +3,6 @@ package com.pdp.ecommerce.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pdp.ecommerce.entity.Product;
-import com.pdp.ecommerce.entity.Role;
 import com.pdp.ecommerce.entity.User;
 import com.pdp.ecommerce.exception.UserAlreadyExistException;
 import com.pdp.ecommerce.exception.WrongConfirmationCodeException;
@@ -31,13 +29,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -110,8 +104,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void save(User user) {
-        userRepository.save(user);
+    public User save(User user) {
+        return userRepository.save(user);
     }
 
     @Override
@@ -166,8 +160,4 @@ public class UserServiceImpl implements UserService {
             }
         }
     }
-
-
-
-
 }
