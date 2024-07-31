@@ -14,4 +14,10 @@ public interface ProductService {
     List<Product> getRandomProducts();
 
     List<Product> getRandomProductsByCategoryId(UUID id, Integer count);
+
+    List<Product> findByNameAndGender(SearchDto searchDto);
+
+    List<Product> recommendProducts();
+
+    Product findOneFavouriteProductByUserId(UUID userId);
 }

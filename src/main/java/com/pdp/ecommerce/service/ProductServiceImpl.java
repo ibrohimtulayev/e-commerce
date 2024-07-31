@@ -30,3 +30,37 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.getRandomProductsByCategoryId(id, amount);
     }
 }
+    @Override
+    public List<Product> findByNameAndGender(SearchDto searchDto) {
+        String keyword = searchDto.keyword();
+        String gender = searchDto.genderEnum().name();
+        userService.updateUserSearchHistory(keyword);
+        return productRepository.findByNameAndGender(keyword, gender);
+    }
+
+    @Override
+    public List<Product> recommendProducts() {
+        Optional<User> user = userService.getSignedUser();
+
+        List<Product>getProducts = new ArrayList<>();
+        if (user.isPresent()) {
+            User signedUser = user.get();
+            if (signedUser.getFavouriteProducts() != null && !signedUser.getFavouriteProducts().isEmpty()) {
+                Product product = findOneFavouriteProductByUserId(signedUser.getId());
+                System.out.println(product.getName());
+                getProducts.add(product);
+                getProducts = productRepository.getProductsWithFavouriteType(product.getCategory().getId(), product.getId());
+            } else {
+                getProducts = productRepository.getRandomProducts(4);
+            }
+        }
+        return getProducts;
+    }
+
+    @Override
+    public Product findOneFavouriteProductByUserId(UUID id) {
+        return productRepository.findOneFavouriteProductByUserId(id)
+                .orElse(null);
+    }
+
+}

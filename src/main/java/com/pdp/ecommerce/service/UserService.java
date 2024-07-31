@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface UserService {
@@ -24,4 +25,8 @@ public interface UserService {
     void save(User user);
 
     List<User> findAllUsersByRole(String role);
+
+    Optional<User> getSignedUser();
+    List<String> getUserSearchHistory();
+    void updateUserSearchHistory(String keyword);
 }
