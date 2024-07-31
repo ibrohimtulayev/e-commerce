@@ -4,6 +4,7 @@ import com.pdp.ecommerce.entity.*;
 import com.pdp.ecommerce.entity.enums.GenderEnum;
 import com.pdp.ecommerce.entity.enums.OrderStatus;
 import com.pdp.ecommerce.entity.enums.RoleName;
+import com.pdp.ecommerce.repository.UserRepository;
 import com.pdp.ecommerce.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,10 +35,10 @@ public class Runner implements CommandLineRunner {
 
     @Value("${spring.jpa.hibernate.ddl-auto}")
     private String ddl;
+    private final UserRepository userRepository;
 
     @Override
     public void run(String... args) {
-
 
         if (ddl.equals("create")) {
 
@@ -53,11 +54,7 @@ public class Runner implements CommandLineRunner {
             roleService.save(userRole);
 
 
-            User admin = User.builder()
-                    .email("admin@gmail.com")
-                    .password(passwordEncoder.encode("1221"))
-                    .roles(List.of(adminRole))
-                    .build();
+
 
             User user = User.builder()
                     .email("user@gmail.com")
@@ -66,7 +63,7 @@ public class Runner implements CommandLineRunner {
                     .build();
 
             userService.save(user);
-            userService.save(admin);
+
 
             // Create Addresses
             Address address1 = Address.builder().latitude(34.0522).longitude(-118.2437).build();
@@ -132,6 +129,14 @@ public class Runner implements CommandLineRunner {
             productService.save(product1);
             productService.save(product2);
             productService.save(product3);
+
+            User admin = User.builder()
+                    .email("admin@gmail.com")
+                    .password(passwordEncoder.encode("1221"))
+                    .roles(List.of(adminRole))
+                    .favouriteProducts(List.of(product1))
+                    .build();
+            userRepository.save(admin);
 
             // Create Discounts
             Discount discount = Discount.builder().startDate(LocalDateTime.now())

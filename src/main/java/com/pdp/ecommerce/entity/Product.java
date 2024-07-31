@@ -21,7 +21,7 @@ public class Product {
     @OneToOne(cascade = CascadeType.PERSIST)
     private ProductDetails productDetails;
     @ManyToOne
-//    @JoinColumn(name = "category_id")
-//    @JsonManagedReference
+    @JoinColumn(name = "category_id")
     private Category category;
+
 }

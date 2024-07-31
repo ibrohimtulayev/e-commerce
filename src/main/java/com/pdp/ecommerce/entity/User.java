@@ -31,6 +31,9 @@ public class User implements UserDetails {
     @OneToMany
     private List<Product>favouriteProducts;
 
+    @Column(name = "search_history")
+    private String searchHistoryString;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles;
