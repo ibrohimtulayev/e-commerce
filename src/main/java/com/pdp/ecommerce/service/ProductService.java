@@ -4,13 +4,14 @@ import com.pdp.ecommerce.entity.Product;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 
 public interface ProductService {
-    void save(Product product);
+    Product save(Product product);
 
     List<Product> getRandomProducts();
 
-
+    List<Product> getRandomProductsByCategoryId(UUID id, Integer count);
 }

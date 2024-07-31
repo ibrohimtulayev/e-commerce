@@ -23,8 +23,8 @@ public class Discount {
     private LocalDateTime endDate;
     private Integer amount;
     private String description;
-    @OneToMany
+    @ManyToMany
     private List<Category> categories;
-    @OneToMany
+    @ManyToMany
     private List<Product> products;
 }

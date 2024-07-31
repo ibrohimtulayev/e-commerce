@@ -9,6 +9,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public interface UserService {
     UserDetails findByEmail(String username);
@@ -20,4 +22,6 @@ public interface UserService {
     HttpEntity<?> checkVerificationCode(String code, String header) throws JsonProcessingException, BadRequestException;
 
     void save(User user);
+
+    List<User> findAllUsersByRole(String role);
 }

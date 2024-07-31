@@ -1,6 +1,6 @@
 package com.pdp.ecommerce.entity.enums;
 
-public enum RoleName {
+public enum RoleEnum {
     ROLE_ADMIN,
     ROLE_USER
 }

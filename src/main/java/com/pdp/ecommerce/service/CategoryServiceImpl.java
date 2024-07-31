@@ -14,8 +14,8 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public void save(Category category) {
-        categoryRepository.save(category);
+    public Category save(Category category) {
+        return categoryRepository.save(category);
     }
 
     @Override
@@ -27,5 +27,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category findById(UUID categoryId) {
         return categoryRepository.findById(categoryId).get();
+    }
+
+
+    @Override
+    public List<Category> getVeryChildCategories() {
+        return categoryRepository.getVeryChildCategories();
     }
 }

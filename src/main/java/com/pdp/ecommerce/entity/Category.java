@@ -19,8 +19,4 @@ public class Category {
     private UUID id;
     private String name;
     private UUID parentCategoryId;
-//    @OneToMany(mappedBy = "category")
-//    @JsonBackReference
-//    private List<Product> products; // causes cycle
-
 }

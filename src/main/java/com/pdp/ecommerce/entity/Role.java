@@ -1,6 +1,6 @@
 package com.pdp.ecommerce.entity;
 
-import com.pdp.ecommerce.entity.enums.RoleName;
+import com.pdp.ecommerce.entity.enums.RoleEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,10 +20,10 @@ public class Role implements GrantedAuthority {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @Enumerated(EnumType.STRING)
-    private RoleName roleName;
+    private RoleEnum name;
 
     @Override
     public String getAuthority() {
-        return roleName.name();
+        return name.name();
     }
 }

@@ -1,10 +1,12 @@
 package com.pdp.ecommerce.runner;
 
+import com.github.javafaker.Faker;
 import com.pdp.ecommerce.entity.*;
 import com.pdp.ecommerce.entity.enums.GenderEnum;
-import com.pdp.ecommerce.entity.enums.OrderStatus;
-import com.pdp.ecommerce.entity.enums.RoleName;
+import com.pdp.ecommerce.entity.enums.RoleEnum;
+import com.pdp.ecommerce.repository.ProductDetailsService;
 import com.pdp.ecommerce.service.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -12,156 +14,181 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
 public class Runner implements CommandLineRunner {
-    private final AddressService addressService;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final UserService userService;
     private final CardService cardService;
     private final CategoryService categoryService;
     private final ProductService productService;
-    private final DiscountService discountService;
-    private final CommentService commentService;
+    private final Faker faker = new Faker();
+    private final ProductDetailsService productDetailsService;
     private final RatingService ratingService;
-    private final OrderService orderService;
-    private final PaymentService paymentService;
-    private final OrderProductService orderProductService;
+    private final CommentService commentService;
+
 
     @Value("${spring.jpa.hibernate.ddl-auto}")
     private String ddl;
 
     @Override
+    @Transactional
     public void run(String... args) {
-
-
         if (ddl.equals("create")) {
+            generateRoleUserAndCards();
+            generateCategoryProductAndProductDetails();
 
-            Role adminRole = Role.builder()
-                    .roleName(RoleName.ROLE_ADMIN)
-                    .build();
+        }
+    }
 
-            Role userRole = Role.builder()
-                    .roleName(RoleName.ROLE_USER)
-                    .build();
+    private void generateRoleUserAndCards() {
+        Role adminRole = Role.builder()
+                .name(RoleEnum.ROLE_ADMIN)
+                .build();
 
-            roleService.save(adminRole);
-            roleService.save(userRole);
+        Role userRole = Role.builder()
+                .name(RoleEnum.ROLE_USER)
+                .build();
 
+        roleService.save(adminRole);
+        roleService.save(userRole);
 
-            User admin = User.builder()
-                    .email("admin@gmail.com")
-                    .password(passwordEncoder.encode("1221"))
-                    .roles(List.of(adminRole))
-                    .build();
+        User admin = User.builder()
+                .email("admin@gmail.com")
+                .password(passwordEncoder.encode("1221"))
+                .roles(List.of(adminRole))
+                .build();
+        userService.save(admin);
 
+        for (int i = 1; i <= 10; i++) {
             User user = User.builder()
-                    .email("user@gmail.com")
+                    .email("user%d@gmail.com".formatted(i))
                     .password(passwordEncoder.encode("1221"))
                     .roles(List.of(userRole))
                     .build();
 
             userService.save(user);
-            userService.save(admin);
+        }
 
-            // Create Addresses
-            Address address1 = Address.builder().latitude(34.0522).longitude(-118.2437).build();
-            Address address2 = Address.builder().latitude(40.7128).longitude(-74.0060).build();
-            addressService.save(address1);
-            addressService.save(address2);
-
-            // Create Cards
-            Card card1 = Card.builder().name("Visa").expiryDate(LocalDate.of(2025, 12, 31))
-                    .cardNumber("1234567812345678").cvv(123).build();
-            Card card2 = Card.builder().name("MasterCard").expiryDate(LocalDate.of(2026, 11, 30))
-                    .cardNumber("9876543210987654").cvv(456).build();
-            cardService.save(card1);
-            cardService.save(card2);
-
-            // Create Categories
-            Category category1 = Category.builder().name("Clothing").build();
-            Category category2 = Category.builder().name("Accessories").parentCategoryId(category1.getId()).build();
-            categoryService.save(category1);
-            categoryService.save(category2);
+        // Create Cards
+        Card card1 = Card.builder().name("Visa").expiryDate(LocalDate.of(2025, 12, 31))
+                .cardNumber("1234567812345678").cvv(123).build();
+        Card card2 = Card.builder().name("MasterCard").expiryDate(LocalDate.of(2026, 11, 30))
+                .cardNumber("9876543210987654").cvv(456).build();
+        cardService.save(card1);
+        cardService.save(card2);
 
 
-            // Create Products
-            Product product1 = Product.builder()
-                    .name("T-Shirt")
-                    .description("Cotton T-Shirt")
-                    .productDetails(ProductDetails
-                            .builder()
-                            .size("M")
-                            .price(19.99)
-                            .quantity(10)
-                            .color("RED")
-                            .gender(GenderEnum.MALE)
-                            .build())
-                    .category(category1)
+    }
 
-                    .build();
-            Product product2 = Product.builder()
-                    .name("T-Shirt")
-                    .description("Cotton T-Shirt")
-                    .productDetails(ProductDetails.builder()
-                            .size("L")
-                            .price(19.99)
-                            .color("BLUE")
-                            .quantity(20)
-                            .gender(GenderEnum.MALE)
-                            .build())
-                    .category(category1)
+    private void generateCategoryProductAndProductDetails() {
+        for (int i = 0; i < 5; i++) {
+            Category parentCategory = createCategory();
+            categoryService.save(parentCategory);
+
+            for (int j = 0; j < 5; j++) {
+                Category subCategory = createCategory();
+                subCategory.setParentCategoryId(parentCategory.getId());
+                Category savedSubCategory = categoryService.save(subCategory);
+
+                // Generate products for each subcategory
+                generateProducts(savedSubCategory);
+            }
+        }
+    }
+
+    private Category createCategory() {
+        return Category.builder()
+                .id(UUID.randomUUID())
+                .name(faker.commerce().department())
+                .build();
+    }
+
+    private void generateProducts(Category category) {
+        for (int i = 0; i < 40; i++) {
+            List<ProductDetails> productDetailsList = createProductDetailsList();
+            List<ProductDetails> savedProductDetailsList = productDetailsService.saveAll(productDetailsList);
+
+            Product product = Product.builder()
+                    .id(UUID.randomUUID())
+                    .name(faker.commerce().productName())
+                    .description(faker.lorem().sentence())
+                    .category(category)
+                    .productDetails(savedProductDetailsList)
                     .build();
 
-            Product product3 = Product.builder()
-                    .name("Watch")
-                    .description("Stylish wristwatch")
-                    .productDetails(ProductDetails.builder()
-                            .size("50")
-                            .color("WHITE")
-                            .gender(GenderEnum.FEMALE)
-                            .quantity(5)
-                            .price(49.99)
-                            .build())
-                    .category(category2)
+            Product savedProduct = productService.save(product);
+            List<User> users = userService.findAllUsersByRole(RoleEnum.ROLE_USER.name());
+
+            generateRating(savedProduct, users);
+            generateComments(savedProduct, users);
+        }
+    }
+
+    private List<ProductDetails> createProductDetailsList() {
+        List<ProductDetails> productDetailsList = new ArrayList<>();
+        List<String> colors = Arrays.asList(
+                "#FF5733", // Red-Orange
+                "#33FF57", // Green
+                "#3357FF", // Blue
+                "#F0F0F0", // Light Gray
+                "#FF33A6", // Pink
+                "#33FFF6", // Cyan
+                "#F5FF33", // Yellow
+                "#FF6F33", // Orange
+                "#6A33FF", // Purple
+                "#33FF6A"  // Light Green
+        );
+        List<String> sizes = Arrays.asList(
+                "XS",   // Extra Small
+                "S",    // Small
+                "M",    // Medium
+                "L",    // Large
+                "XL",   // Extra Large
+                "XXL"  // Double Extra Large
+        );
+        for (String color : colors) {
+            for (String size : sizes) {
+                ProductDetails productDetails = ProductDetails.builder()
+                        .size(size)
+                        .color(color)
+                        .gender(GenderEnum.values()[faker.number().numberBetween(0, GenderEnum.values().length)])
+                        .quantity(faker.number().numberBetween(5, 10))
+                        .price(Double.parseDouble(faker.commerce().price()))
+                        .build();
+                productDetailsList.add(productDetails);
+            }
+        }
+
+        return productDetailsList;
+    }
+
+    private void generateRating(Product product, List<User> users) {
+        Random random = new Random();
+        for (User user : users) {
+            Rating rating = Rating.builder()
+                    .grade(random.nextInt(1, 6))
+                    .product(product)
+                    .user(user)
                     .build();
-            productService.save(product1);
-            productService.save(product2);
-            productService.save(product3);
+            ratingService.save(rating);
+        }
+    }
 
-            // Create Discounts
-            Discount discount = Discount.builder().startDate(LocalDateTime.now())
-                    .endDate(LocalDateTime.now().plusDays(1)).amount(10).description("Summer Sale").build();
-            discountService.save(discount);
 
-            // Create Comments
-            Comment comment1 = Comment.builder().description("Great product!").user(user).build();
-            Comment comment2 = Comment.builder().description("Not bad!").user(user).build();
-            commentService.save(comment1);
-            commentService.save(comment2);
-
-            // Create Ratings
-            Rating rating1 = Rating.builder().grade(5).user(user).build();
-            ratingService.save(rating1);
-
-            // Create Orders
-            Order order = Order.builder().user(user).status(OrderStatus.PENDING).deliveryTime(LocalDateTime.now().plusDays(3)).build();
-            orderService.save(order);
-
-            // Create Payments
-            Payment payment = Payment.builder().user(user).amount(69.98).order(order).card(card1).build();
-            paymentService.save(payment);
-
-            // Associate Products with Order
-            OrderProduct orderProduct1 = OrderProduct.builder().product(product1).amount(1).order(order).build();
-            OrderProduct orderProduct2 = OrderProduct.builder().product(product2).amount(1).order(order).build();
-            // Assuming you have an OrderProductService to save OrderProducts
-            orderProductService.save(orderProduct1);
-            orderProductService.save(orderProduct2);
+    private void generateComments(Product product, List<User> users) {
+        for (User user : users) {
+            for (int i = 0; i < 3; i++) {
+                Comment comment = Comment.builder()
+                        .product(product)
+                        .user(user)
+                        .description(faker.lorem().characters(10, 15))
+                        .build();
+                commentService.save(comment);
+            }
         }
     }
 }

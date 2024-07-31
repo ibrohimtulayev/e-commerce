@@ -11,4 +11,13 @@ import java.util.UUID;
 public interface ProductRepository extends JpaRepository<Product, UUID> {
     @Query(value = "SELECT * FROM product LIMIT :amount", nativeQuery = true)
     List<Product> getRandomProducts(@Param("amount") int amount);
+
+    @Query(value = """
+        SELECT *
+        FROM product
+        WHERE category_id = :id
+        ORDER BY RANDOM()
+        LIMIT :amount
+    """, nativeQuery = true)
+    List<Product> getRandomProductsByCategoryId(@Param("id") UUID id, Integer amount);
 }

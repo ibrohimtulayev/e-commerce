@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -14,8 +15,8 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public void save(Product product) {
-        productRepository.save(product);
+    public Product save(Product product) {
+        return productRepository.save(product);
     }
 
     @Override
@@ -24,5 +25,8 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.getRandomProducts(amount);
     }
 
-
+    @Override
+    public List<Product> getRandomProductsByCategoryId(UUID id, Integer amount) {
+        return productRepository.getRandomProductsByCategoryId(id, amount);
+    }
 }

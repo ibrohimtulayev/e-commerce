@@ -10,3 +10,8 @@ spring:
           auth: true
           starttls:
             enable: true
+
+  task:
+    scheduling:
+      pool:
+        size: 10 # Adjust the size of the scheduling thread pool if needed

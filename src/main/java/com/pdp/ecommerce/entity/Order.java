@@ -1,6 +1,6 @@
 package com.pdp.ecommerce.entity;
 
-import com.pdp.ecommerce.entity.enums.OrderStatus;
+import com.pdp.ecommerce.entity.enums.OrderStatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -25,7 +25,7 @@ public class Order {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    private OrderStatusEnum status;
 
     private LocalDateTime deliveryTime;
 

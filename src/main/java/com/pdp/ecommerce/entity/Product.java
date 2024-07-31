@@ -3,6 +3,7 @@ package com.pdp.ecommerce.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -18,10 +19,8 @@ public class Product {
     private UUID id;
     private String name;
     private String description;
-    @OneToOne(cascade = CascadeType.PERSIST)
-    private ProductDetails productDetails;
+    @OneToMany
+    private List<ProductDetails> productDetails;
     @ManyToOne
-//    @JoinColumn(name = "category_id")
-//    @JsonManagedReference
     private Category category;
 }

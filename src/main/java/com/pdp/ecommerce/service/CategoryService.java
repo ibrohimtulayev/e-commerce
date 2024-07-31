@@ -8,12 +8,11 @@ import java.util.UUID;
 
 @Service
 public interface CategoryService {
-    void save(Category category);
+    Category save(Category category);
 
     List<Category> getRandomCategories();
 
     Category findById(UUID categoryId);
 
-
-
+    List<Category> getVeryChildCategories();
 }
