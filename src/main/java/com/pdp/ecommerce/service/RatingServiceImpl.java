@@ -2,6 +2,7 @@ package com.pdp.ecommerce.service;
 
 import com.pdp.ecommerce.entity.Product;
 import com.pdp.ecommerce.entity.Rating;
+
 import com.pdp.ecommerce.entity.User;
 import com.pdp.ecommerce.repository.RatingRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,11 @@ public class RatingServiceImpl implements RatingService {
     @Override
     public void save(Rating rating) {
         ratingRepository.save(rating);
+    }
+
+    @Override
+    public Rating findByUser(User user) {
+       return ratingRepository.findByUserId(user.getId());
     }
 
 }
