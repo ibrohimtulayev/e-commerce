@@ -19,8 +19,10 @@ public class Product {
     private UUID id;
     private String name;
     private String description;
+    private String image;
     @OneToMany
     private List<ProductDetails> productDetails;
     @ManyToOne
     private Category category;
+
 }

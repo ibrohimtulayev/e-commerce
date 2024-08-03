@@ -23,7 +23,4 @@ public class ProductDetails {
     private GenderEnum gender;
     private Integer quantity;
     private Double price;
-//    @ManyToOne
-//    @JoinColumn(name = "product_id")
-//    private Product product;
 }

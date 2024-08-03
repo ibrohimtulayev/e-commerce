@@ -19,7 +19,6 @@ import java.util.*;
 @Component
 @RequiredArgsConstructor
 public class Runner implements CommandLineRunner {
-    private static final Logger logger = LoggerFactory.getLogger(Runner.class);
 
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
@@ -45,7 +44,6 @@ public class Runner implements CommandLineRunner {
     }
 
     private void generateRoleUserAndCards() {
-        logger.info("Generating roles, users, and cards...");
 
         Role adminRole = Role.builder()
                 .name(RoleEnum.ROLE_ADMIN)
@@ -83,7 +81,6 @@ public class Runner implements CommandLineRunner {
     }
 
     private void generateCategoryProductAndProductDetails() {
-        logger.info("Generating categories, products, and product details...");
         int totalProducts = 100;
         int categoriesCount = 5;
         int productsPerCategory = totalProducts / categoriesCount;
@@ -111,7 +108,6 @@ public class Runner implements CommandLineRunner {
     }
 
     private void generateProducts(Category category, int count) {
-        logger.info("Generating products for category: {}", category.getName());
         for (int i = 0; i < count; i++) {
             List<ProductDetails> productDetailsList = createProductDetailsList();
             List<ProductDetails> savedProductDetailsList = productDetailsService.saveAll(productDetailsList);
@@ -185,7 +181,6 @@ public class Runner implements CommandLineRunner {
     }
 
     private void generateComments(Product product, List<User> users) {
-        logger.info("Generating comments for product: {}", product.getName());
         for (User user : users) {
             for (int i = 0; i < 3; i++) {
                 Comment comment = Comment.builder()

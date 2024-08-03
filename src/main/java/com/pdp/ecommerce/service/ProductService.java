@@ -21,4 +21,6 @@ public interface ProductService {
     List<Product> recommendProducts();
 
     Product findOneFavouriteProductByUserId(UUID userId);
+
+    void   updateProductImage(UUID productId, String imageUrl);
 }
