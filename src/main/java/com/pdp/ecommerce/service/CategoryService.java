@@ -1,6 +1,7 @@
 package com.pdp.ecommerce.service;
 
 import com.pdp.ecommerce.entity.Category;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,4 +16,6 @@ public interface CategoryService {
     Category findById(UUID categoryId);
 
     List<Category> getVeryChildCategories();
+
+    HttpEntity<?> getAllCategories();
 }

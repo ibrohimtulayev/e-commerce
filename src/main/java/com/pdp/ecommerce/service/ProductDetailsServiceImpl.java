@@ -1,4 +1,4 @@
-package com.pdp.ecommerce.repository;
+package com.pdp.ecommerce.service;
 
 import com.pdp.ecommerce.entity.ProductDetails;
 import com.pdp.ecommerce.entity.ProductDetailsRepository;

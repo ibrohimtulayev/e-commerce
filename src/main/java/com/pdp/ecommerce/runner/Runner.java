@@ -4,9 +4,7 @@ import com.github.javafaker.Faker;
 import com.pdp.ecommerce.entity.*;
 import com.pdp.ecommerce.entity.enums.GenderEnum;
 import com.pdp.ecommerce.entity.enums.RoleEnum;
-import com.pdp.ecommerce.repository.ProductDetailsService;
 import com.pdp.ecommerce.service.*;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -35,7 +33,6 @@ public class Runner implements CommandLineRunner {
     private String ddl;
 
     @Override
-    @Transactional
     public void run(String... args) {
         if (ddl.equals("create")) {
             generateRoleUserAndCards();
@@ -44,7 +41,6 @@ public class Runner implements CommandLineRunner {
     }
 
     private void generateRoleUserAndCards() {
-
         Role adminRole = Role.builder()
                 .name(RoleEnum.ROLE_ADMIN)
                 .build();
@@ -87,24 +83,27 @@ public class Runner implements CommandLineRunner {
 
         for (int i = 0; i < categoriesCount; i++) {
             Category parentCategory = createCategory();
-            categoryService.save(parentCategory);
-
-            for (int j = 0; j < 1; j++) {
+            for (int j = 0; j < 3; j++) {
                 Category subCategory = createCategory();
                 subCategory.setParentCategoryId(parentCategory.getId());
-                Category savedSubCategory = categoryService.save(subCategory);
 
                 // Generate products for each subcategory
-                generateProducts(savedSubCategory, productsPerCategory);
+                generateProducts(subCategory, productsPerCategory);
             }
         }
     }
 
     private Category createCategory() {
-        return Category.builder()
-                .id(UUID.randomUUID())
-                .name(faker.commerce().department())
-                .build();
+        try {
+            Category savedCategory = Category.builder()
+                    .id(UUID.randomUUID())
+                    .name(faker.commerce().department())
+                    .build();
+            return categoryService.save(savedCategory);
+        } catch (Exception e) {
+            createCategory();
+        }
+        return null;
     }
 
     private void generateProducts(Category category, int count) {

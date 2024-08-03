@@ -1,8 +1,11 @@
 package com.pdp.ecommerce.service;
 
 import com.pdp.ecommerce.entity.Category;
+import com.pdp.ecommerce.model.projection.CategoryProjection;
 import com.pdp.ecommerce.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,4 +37,11 @@ public class CategoryServiceImpl implements CategoryService {
     public List<Category> getVeryChildCategories() {
         return categoryRepository.getVeryChildCategories();
     }
+
+    @Override
+    public HttpEntity<?> getAllCategories() {
+        List<CategoryProjection> categories = categoryRepository.findAllCategories();
+        return ResponseEntity.ok(categories);
+    }
+
 }
