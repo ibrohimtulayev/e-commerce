@@ -5,6 +5,9 @@ import com.pdp.ecommerce.entity.User;
 import com.pdp.ecommerce.model.dto.SearchDto;
 import com.pdp.ecommerce.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -77,6 +80,12 @@ public class ProductServiceImpl implements ProductService {
         }else {
             throw new RuntimeException("Product not found");
         }
+    }
+
+    @Override
+    public Page<Product> getPagedProductsByCategory(int page, String categoryName) {
+        Pageable pageable = PageRequest.of(page, 10); // 10 items per page
+        return productRepository.getPagedProductsByCategoryName(categoryName, pageable);
     }
 
 }
