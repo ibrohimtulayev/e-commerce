@@ -1,6 +1,7 @@
 package com.pdp.ecommerce.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.pdp.ecommerce.entity.Product;
 import com.pdp.ecommerce.entity.User;
 import com.pdp.ecommerce.model.dto.UserLoginDto;
 import com.pdp.ecommerce.model.dto.UserRegisterDto;
@@ -29,4 +30,6 @@ public interface UserService {
     Optional<User> getSignedUser();
     List<String> getUserSearchHistory();
     void updateUserSearchHistory(String keyword);
+
+    List<Product> getWishlist();
 }

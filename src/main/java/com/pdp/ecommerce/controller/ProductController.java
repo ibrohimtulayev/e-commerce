@@ -52,8 +52,8 @@ public class ProductController {
     @GetMapping("/getPagedProductsByCategory")
     public Page<Product> getPagedProductsByCategory(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam UUID categoryId) {
-        return productService.getPagedProductsByCategory(page, categoryId);
+            @RequestParam String  categoryName) {
+        return productService.getPagedProductsByCategory(page, categoryName);
     }
 
 }

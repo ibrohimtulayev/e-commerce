@@ -83,9 +83,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> getPagedProductsByCategory(int page, UUID categoryId) {
+    public Page<Product> getPagedProductsByCategory(int page, String categoryName) {
         Pageable pageable = PageRequest.of(page, 10); // 10 items per page
-        return productRepository.getPagedProductsByCategoryId(categoryId, pageable);
+        return productRepository.getPagedProductsByCategoryName(categoryName, pageable);
     }
 
 }

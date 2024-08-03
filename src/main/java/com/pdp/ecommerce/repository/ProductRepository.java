@@ -41,5 +41,6 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId AND p.id != :productId ORDER BY FUNCTION('RANDOM') limit 4")
     List<Product> getProductsWithFavouriteType(@Param("categoryId") UUID categoryId, @Param("productId") UUID productId);
 
-    Page<Product> getPagedProductsByCategoryId(UUID categoryId, Pageable pageable);
+    Page<Product> getPagedProductsByCategoryName(String categoryName, Pageable pageable);
+
 }

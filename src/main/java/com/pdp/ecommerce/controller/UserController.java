@@ -1,5 +1,6 @@
 package com.pdp.ecommerce.controller;
 
+import com.pdp.ecommerce.entity.Product;
 import com.pdp.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -20,4 +21,10 @@ public class UserController {
     public HttpEntity<?> getSearchHistory(){
         return ResponseEntity.ok(userService.getUserSearchHistory());
     }
+
+    @GetMapping("/wishlist")
+    public HttpEntity<?> getUserWishlist(){
+      return ResponseEntity.ok(userService.getWishlist());
+    }
 }
+

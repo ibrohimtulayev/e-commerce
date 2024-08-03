@@ -167,7 +167,13 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-
+    @Override
+    public List<Product> getWishlist() {
+        Optional<User> signedUser = getSignedUser();
+        if(signedUser.isPresent()){
+            return signedUser.get().getFavouriteProducts();
+        } else return List.of();
+    }
 
 
 }

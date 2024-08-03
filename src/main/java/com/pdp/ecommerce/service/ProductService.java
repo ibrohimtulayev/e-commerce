@@ -25,6 +25,6 @@ public interface ProductService {
 
     void   updateProductImage(UUID productId, String imageUrl);
 
-    Page<Product> getPagedProductsByCategory(int page, UUID categoryId);
+    Page<Product> getPagedProductsByCategory(int page, String categoryName);
 
 }
