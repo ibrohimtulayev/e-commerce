@@ -67,4 +67,16 @@ public class ProductServiceImpl implements ProductService {
                 .orElse(null);
     }
 
+    @Override
+    public void updateProductImage(UUID productId, String imageUrl) {
+        Optional<Product> byId = productRepository.findById(productId);
+        if (byId.isPresent()) {
+            Product product = byId.get();
+            product.setImage(imageUrl);
+            productRepository.save(product);
+        }else {
+            throw new RuntimeException("Product not found");
+        }
+    }
+
 }
