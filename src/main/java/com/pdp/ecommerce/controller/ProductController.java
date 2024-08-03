@@ -6,6 +6,7 @@ import com.pdp.ecommerce.model.dto.SearchDto;
 import com.pdp.ecommerce.service.ProductService;
 import com.pdp.ecommerce.service.aws.S3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +47,13 @@ public class ProductController {
         System.out.println(imageUrl);
         productService.updateProductImage(UUID.fromString(productId), imageUrl);
         return new ResponseEntity<>(productId, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/getPagedProductsByCategory")
+    public Page<Product> getPagedProductsByCategory(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam UUID categoryId) {
+        return productService.getPagedProductsByCategory(page, categoryId);
     }
 
 }

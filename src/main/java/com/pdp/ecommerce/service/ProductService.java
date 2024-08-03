@@ -2,6 +2,7 @@ package com.pdp.ecommerce.service;
 
 import com.pdp.ecommerce.entity.Product;
 import com.pdp.ecommerce.model.dto.SearchDto;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,4 +24,7 @@ public interface ProductService {
     Product findOneFavouriteProductByUserId(UUID userId);
 
     void   updateProductImage(UUID productId, String imageUrl);
+
+    Page<Product> getPagedProductsByCategory(int page, UUID categoryId);
+
 }
