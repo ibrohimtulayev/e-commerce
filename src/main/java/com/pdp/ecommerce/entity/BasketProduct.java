@@ -11,18 +11,15 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-public class OrderProduct {
+@Table(name = "basket_product")
+public class BasketProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
     @OneToOne
     private ProductDetails productDetails;
-    private Integer amount;
+    private int amount;
     @ManyToOne
-    private Order order;
-
-
-
-
+    private User user;
 }
