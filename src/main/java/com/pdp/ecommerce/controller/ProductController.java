@@ -1,15 +1,11 @@
 package com.pdp.ecommerce.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.pdp.ecommerce.entity.Product;
 import com.pdp.ecommerce.model.dto.SearchDto;
 import com.pdp.ecommerce.service.ProductService;
 import com.pdp.ecommerce.service.aws.S3Service;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,35 +20,38 @@ public class ProductController {
 
     @GetMapping("/random")
     public HttpEntity<?> getRandomProduct() {
-        return ResponseEntity.ok(productService.getRandomProducts());
+        return productService.getRandomProducts();
     }
 
     @PostMapping("/search")
     public HttpEntity<?> findProduct(@RequestBody SearchDto searchDto) {
-        return ResponseEntity.ok(productService.findByNameAndGender(searchDto));
+        return  productService.findByNameAndGender(searchDto);
     }
 
     @GetMapping("/recommendation")
     public HttpEntity<?> getRecommendation() {
-        return ResponseEntity.ok(productService.recommendProducts());
+        return productService.recommendProducts();
     }
 
     @PostMapping(value = "/uploadImage", consumes = "multipart/form-data")
-    public ResponseEntity<?> uploadImageAndCreateProduct(
+    public HttpEntity<?> uploadImageAndCreateProduct(
             @RequestParam("file") MultipartFile file,
             @RequestParam("productId") String productId) {
-
         String imageUrl = s3Service.uploadFile(file);
-        System.out.println(imageUrl);
-        productService.updateProductImage(UUID.fromString(productId), imageUrl);
-        return new ResponseEntity<>(productId, HttpStatus.CREATED);
+       return productService.updateProductImage(UUID.fromString(productId), imageUrl);
     }
 
     @GetMapping("/getPagedProductsByCategory")
-    public Page<Product> getPagedProductsByCategory(
+    public HttpEntity<?> getPagedProductsByCategory(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam String  categoryName) {
+            @RequestParam String categoryName) {
         return productService.getPagedProductsByCategory(page, categoryName);
+    }
+
+    // newly_added , best_rating TODO: should add more filters
+    @GetMapping("/filter")
+    public HttpEntity<?> getFilteredProducts(@RequestParam UUID categoryId,@RequestParam String filterBy){
+        return productService.filterBy(categoryId,filterBy);
     }
 
     @GetMapping("{id}")

@@ -24,7 +24,6 @@ public class DiscountServiceImpl implements DiscountService{
     public void save(Discount discount) {
         discountRepository.save(discount);
     }
-
     @Override
     public void makeWeeklyDiscount() {
         Random random = new Random();

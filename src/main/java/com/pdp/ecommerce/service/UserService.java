@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public interface UserService {
@@ -27,7 +28,16 @@ public interface UserService {
     List<User> findAllUsersByRole(String role);
 
     Optional<User> getSignedUser();
-    List<String> getUserSearchHistory();
+
+    HttpEntity<?> getUserSearchHistory();
+
     void updateUserSearchHistory(String keyword);
 
+    HttpEntity<?> getWishlist();
+
+    HttpEntity<?> addToWishlist(UUID productId);
+
+    HttpEntity<?> clearWishlist();
+
+    HttpEntity<?> removeFavouriteProduct(UUID id);
 }

@@ -3,6 +3,8 @@ package com.pdp.ecommerce.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pdp.ecommerce.entity.Product;
+import com.pdp.ecommerce.entity.ProductDetailsRepository;
 import com.pdp.ecommerce.entity.User;
 import com.pdp.ecommerce.exception.UserAlreadyExistException;
 import com.pdp.ecommerce.exception.WrongConfirmationCodeException;
@@ -10,10 +12,13 @@ import com.pdp.ecommerce.mapper.UserMapper;
 import com.pdp.ecommerce.model.dto.TokenDto;
 import com.pdp.ecommerce.model.dto.UserLoginDto;
 import com.pdp.ecommerce.model.dto.UserRegisterDto;
+import com.pdp.ecommerce.model.projection.ProductProjection;
+import com.pdp.ecommerce.repository.ProductRepository;
 import com.pdp.ecommerce.repository.UserRepository;
 import com.pdp.ecommerce.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -28,19 +33,23 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final JwtUtils jwtUtils;
     private PasswordEncoder passwordEncoder;
     private AuthenticationManager authenticationManager;
-    private final JwtUtils jwtUtils;
+    private final ProductRepository productRepository;
 
     @Autowired
     public void setPasswordEncoder(@Lazy PasswordEncoder passwordEncoder) {
@@ -52,17 +61,17 @@ public class UserServiceImpl implements UserService {
         this.authenticationManager = authenticationManager;
     }
 
+
     @Override
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    @SneakyThrows
     @Override
+    @SneakyThrows
     public HttpEntity<?> register(UserRegisterDto userRegisterDto) {
         User user = userMapper.toEntity(userRegisterDto);
-
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new UserAlreadyExistException("User has already registered");
         }
@@ -86,12 +95,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-
     @Override
     public HttpEntity<?> login(UserLoginDto userLoginDto) {
         try {
-            Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    userLoginDto.email(), userLoginDto.password()));
+            Authentication authenticate = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(userLoginDto.email(), userLoginDto.password())
+            );
             User user = (User) authenticate.getPrincipal();
             TokenDto tokenDto = new TokenDto(
                     jwtUtils.generateToken(user),
@@ -117,47 +126,94 @@ public class UserServiceImpl implements UserService {
     public Optional<User> getSignedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        Optional<User> user = userRepository.findByEmail(email);
-        return user;
+        return userRepository.findByEmail(email);
     }
 
-
-
-    public List<String> getUserSearchHistory() {
+    @Override
+    public HttpEntity<?> getUserSearchHistory() {
         Optional<User> userOpt = getSignedUser();
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             if (user.getSearchHistoryString() != null) {
                 try {
                     ObjectMapper objectMapper = new ObjectMapper();
-                    List<String> fullHistory = objectMapper.readValue(user.getSearchHistoryString(), new TypeReference<>() {});
+                    List<String> fullHistory = objectMapper.readValue(user.getSearchHistoryString(), new TypeReference<>() {
+                    });
                     int size = fullHistory.size();
-                    return size > 10 ? fullHistory.subList(size - 10, size) : fullHistory; // get last 10 search history
+                    return ResponseEntity.ok(size > 10 ? fullHistory.subList(size - 10, size) : fullHistory);
                 } catch (JsonProcessingException e) {
-                    e.printStackTrace();
+                    log.error("Error processing JSON", e);
                 }
             }
         }
-        return new ArrayList<>();
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
+    @Override
     public void updateUserSearchHistory(String keyword) {
         Optional<User> userOpt = getSignedUser();
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            List<String> history = getUserSearchHistory();
-
-            // Check if the keyword is already in the search history
-            if (!history.contains(keyword)) {
-                history.add(keyword); // Add keyword only if it is not already present
-                try {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    user.setSearchHistoryString(objectMapper.writeValueAsString(history)); // Serialize back to string
-                    userRepository.save(user); // Save the updated user entity
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace(); // Handle the exception appropriately
+            List<String> history = new ArrayList<>();
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                if (user.getSearchHistoryString() != null) {
+                    history = objectMapper.readValue(user.getSearchHistoryString(), new TypeReference<>() {
+                    });
                 }
+
+                if (!history.contains(keyword)) {
+                    history.add(keyword);
+                    user.setSearchHistoryString(objectMapper.writeValueAsString(history));
+                    userRepository.save(user);
+                }
+            } catch (JsonProcessingException e) {
+                log.error("Error processing JSON", e);
             }
         }
     }
+
+    @Override
+    public HttpEntity<?> getWishlist() {
+        Optional<User> signedUser = getSignedUser();
+        if (signedUser.isPresent()) {
+            User user = signedUser.get();
+            List<ProductProjection> products = userRepository.getUserFavouriteProducts(user.getId());
+            return ResponseEntity.ok(products);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+
+    }
+
+    @Override
+    public HttpEntity<?> addToWishlist(UUID productId) {
+        Optional<Product> product = productRepository.findById(productId);
+        if (product.isPresent()) {
+            getSignedUser().ifPresent(user -> user.getFavouriteProducts().add(product.get()));
+            return ResponseEntity.ok(product);
+        } else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+    }
+
+    @Override
+    public HttpEntity<?> clearWishlist() {
+        getSignedUser().ifPresent(user -> user.getFavouriteProducts().clear());
+       return ResponseEntity.status(HttpStatus.OK).body("success");
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<String> removeFavouriteProduct(UUID id) {
+        User currentUser = getSignedUser().orElseThrow(() -> new RuntimeException("User is not signed in"));
+        List<Product> favouriteProducts = currentUser.getFavouriteProducts();
+        List<Product> newFavourite = favouriteProducts.stream()
+                .filter(product -> !product.getId().equals(id))
+                .toList();
+        currentUser.setFavouriteProducts(newFavourite);
+        userRepository.save(currentUser);
+        return ResponseEntity.status(HttpStatus.OK).body("success");
+    }
+
 }
+
+

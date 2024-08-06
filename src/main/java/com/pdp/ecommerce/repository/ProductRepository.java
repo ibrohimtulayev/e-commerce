@@ -1,6 +1,7 @@
 package com.pdp.ecommerce.repository;
 
 import com.pdp.ecommerce.entity.Product;
+import com.pdp.ecommerce.model.projection.ProductProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,12 +17,12 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     List<Product> getRandomProducts(@Param("amount") int amount);
 
     @Query(value = """
-        SELECT *
-        FROM product
-        WHERE category_id = :id
-        ORDER BY RANDOM()
-        LIMIT :amount
-    """, nativeQuery = true)
+                SELECT *
+                FROM product
+                WHERE category_id = :id
+                ORDER BY RANDOM()
+                LIMIT :amount
+            """, nativeQuery = true)
     List<Product> getRandomProductsByCategoryId(@Param("id") UUID id, Integer amount);
 
     @Query("SELECT p FROM User u JOIN u.favouriteProducts p WHERE u.id = :userId ORDER BY FUNCTION('RANDOM') LIMIT 1")
@@ -30,19 +31,37 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     //CREATE EXTENSION pg_trgm ;  use this command
     @Query(value = """
-            SELECT DISTINCT (p.*) FROM product p
+            SELECT distinct p.* FROM product p
             JOIN product_product_details ppd on p.id = ppd.product_id 
             JOIN product_details pd ON ppd.product_details_id = pd.id
-            WHERE pd.gender = :gender
+            WHERE pd.gender = CAST(:gender AS VARCHAR)
             AND SIMILARITY(p.name, :keyword) > 0.2;
-            """,nativeQuery = true)
-
-    List<Product> findByNameAndGender(@Param("keyword") String keyword,@Param("gender") String gender);
+            """, nativeQuery = true)
+    List<Product> findByNameAndGender(@Param("keyword") String keyword, @Param("gender") String gender);
 
     @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId AND p.id != :productId ORDER BY FUNCTION('RANDOM') limit 4")
     List<Product> getProductsWithFavouriteType(@Param("categoryId") UUID categoryId, @Param("productId") UUID productId);
 
     Page<Product> getPagedProductsByCategoryName(String categoryName, Pageable pageable);
+
+    @Query(value = """
+            select p.*
+            from product p
+            where p.category_id=:categoryId
+            Order by p.created_at desc
+            """,nativeQuery = true)
+    List<ProductProjection> filterByNewlyAdded(@Param("categoryId") UUID categoryId);
+    @Query(value = """
+            select p.*
+            from product p
+                     join rating r on p.id = r.product_id
+            where p.category_id=:categoryId
+            group by p.id
+            order by max(r.grade) desc
+                        """, nativeQuery = true)
+    List<ProductProjection> filterByRating(@Param("categoryId") UUID categoryId);
+
+    List<ProductProjection> findByCategoryId(@Param("categoryId") UUID categoryId);
 
     @Query(value = """
         SELECT json_build_object(
