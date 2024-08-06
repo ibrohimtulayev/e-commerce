@@ -34,7 +34,6 @@ public class UserController {
     @DeleteMapping("wishlist/{id}")
     public HttpEntity<?> removeFromWishlist(@PathVariable UUID id){
         return userService.removeFavouriteProduct(id);
-      return ResponseEntity.ok(null);
     }
 }
 

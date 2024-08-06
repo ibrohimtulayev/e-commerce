@@ -7,7 +7,6 @@ import com.pdp.ecommerce.entity.User;
 import com.pdp.ecommerce.model.dto.SearchDto;
 import com.pdp.ecommerce.model.projection.ProductProjection;
 import com.pdp.ecommerce.repository.ProductRepository;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -117,6 +116,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public HttpEntity<?> getDetailedProductById(UUID id) throws JsonProcessingException {
         String detailedProduct = productRepository.findDetailedProductById(id);
-        return ResponseEntity.ok(objectMapper.readtree(detailedProduct));
+        return ResponseEntity.ok(objectMapper.readTree(detailedProduct));
     }
 }
