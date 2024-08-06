@@ -1,13 +1,18 @@
 package com.pdp.ecommerce.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pdp.ecommerce.entity.Product;
 import com.pdp.ecommerce.entity.User;
 import com.pdp.ecommerce.model.dto.SearchDto;
 import com.pdp.ecommerce.repository.ProductRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,6 +25,9 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final UserService userService;
+    private final EntityManager entityManager;
+    private final ObjectMapper objectMapper;
+
 
     @Override
     public Product save(Product product) {
@@ -88,4 +96,9 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.getPagedProductsByCategoryName(categoryName, pageable);
     }
 
+    @Override
+    public HttpEntity<?> getDetailedProductById(UUID id) throws JsonProcessingException {
+        String detailedProduct = productRepository.findDetailedProductById(id);
+        return ResponseEntity.ok(objectMapper.readTree(detailedProduct));
+    }
 }

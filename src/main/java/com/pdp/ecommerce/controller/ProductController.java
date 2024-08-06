@@ -1,7 +1,7 @@
 package com.pdp.ecommerce.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pdp.ecommerce.entity.Product;
-import com.pdp.ecommerce.model.dto.ProductDto;
 import com.pdp.ecommerce.model.dto.SearchDto;
 import com.pdp.ecommerce.service.ProductService;
 import com.pdp.ecommerce.service.aws.S3Service;
@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.UUID;
 
 @RestController
@@ -54,6 +53,11 @@ public class ProductController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam String  categoryName) {
         return productService.getPagedProductsByCategory(page, categoryName);
+    }
+
+    @GetMapping("{id}")
+    public HttpEntity<?> getProduct(@PathVariable UUID id) throws JsonProcessingException {
+        return productService.getDetailedProductById(id);
     }
 
 }

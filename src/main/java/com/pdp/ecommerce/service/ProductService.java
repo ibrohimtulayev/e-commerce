@@ -1,8 +1,10 @@
 package com.pdp.ecommerce.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pdp.ecommerce.entity.Product;
 import com.pdp.ecommerce.model.dto.SearchDto;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,4 +29,6 @@ public interface ProductService {
 
     Page<Product> getPagedProductsByCategory(int page, String categoryName);
 
+
+    HttpEntity<?> getDetailedProductById(UUID id) throws JsonProcessingException;
 }

@@ -24,13 +24,15 @@ public class Runner implements CommandLineRunner {
     private final CardService cardService;
     private final CategoryService categoryService;
     private final ProductService productService;
-    private final Faker faker = new Faker();
     private final ProductDetailsService productDetailsService;
     private final RatingService ratingService;
     private final CommentService commentService;
+    private final Faker faker = new Faker();
 
     @Value("${spring.jpa.hibernate.ddl-auto}")
     private String ddl;
+
+    private final Set<String> createdCategoryNames = new HashSet<>();
 
     @Override
     public void run(String... args) {
@@ -68,12 +70,18 @@ public class Runner implements CommandLineRunner {
         }
 
         // Create Cards
-        Card card1 = Card.builder().name("Visa").expiryDate(LocalDate.of(2025, 12, 31))
-                .cardNumber("1234567812345678").cvv(123).build();
-        Card card2 = Card.builder().name("MasterCard").expiryDate(LocalDate.of(2026, 11, 30))
-                .cardNumber("9876543210987654").cvv(456).build();
-        cardService.save(card1);
-        cardService.save(card2);
+        createCard("Visa", "1234567812345678", LocalDate.of(2025, 12, 31), 123);
+        createCard("MasterCard", "9876543210987654", LocalDate.of(2026, 11, 30), 456);
+    }
+
+    private void createCard(String name, String cardNumber, LocalDate expiryDate, int cvv) {
+        Card card = Card.builder()
+                .name(name)
+                .expiryDate(expiryDate)
+                .cardNumber(cardNumber)
+                .cvv(cvv)
+                .build();
+        cardService.save(card);
     }
 
     private void generateCategoryProductAndProductDetails() {
@@ -82,28 +90,37 @@ public class Runner implements CommandLineRunner {
         int productsPerCategory = totalProducts / categoriesCount;
 
         for (int i = 0; i < categoriesCount; i++) {
+            // Create parent category
             Category parentCategory = createCategory();
             for (int j = 0; j < 3; j++) {
+                // Create subcategory and set its parent
                 Category subCategory = createCategory();
-                subCategory.setParentCategoryId(parentCategory.getId());
-
-                // Generate products for each subcategory
-                generateProducts(subCategory, productsPerCategory);
+                if (subCategory != null) {
+                    subCategory.setParentCategoryId(parentCategory.getId());
+                    categoryService.save(subCategory);  // Save subcategory
+                    // Generate products for each subcategory
+                    generateProducts(subCategory, productsPerCategory);
+                }
             }
         }
     }
 
     private Category createCategory() {
         try {
+            String categoryName;
+            do {
+                categoryName = faker.commerce().department();
+            } while (createdCategoryNames.contains(categoryName));
+
+            createdCategoryNames.add(categoryName);
             Category savedCategory = Category.builder()
                     .id(UUID.randomUUID())
-                    .name(faker.commerce().department())
+                    .name(categoryName)
                     .build();
             return categoryService.save(savedCategory);
         } catch (Exception e) {
-            createCategory();
+            return null; // Handle exception appropriately
         }
-        return null;
     }
 
     private void generateProducts(Category category, int count) {
@@ -130,25 +147,10 @@ public class Runner implements CommandLineRunner {
     private List<ProductDetails> createProductDetailsList() {
         List<ProductDetails> productDetailsList = new ArrayList<>();
         List<String> colors = Arrays.asList(
-                "#FF5733", // Red-Orange
-                "#33FF57", // Green
-                "#3357FF", // Blue
-                "#F0F0F0", // Light Gray
-                "#FF33A6", // Pink
-                "#33FFF6", // Cyan
-                "#F5FF33", // Yellow
-                "#FF6F33", // Orange
-                "#6A33FF", // Purple
-                "#33FF6A"  // Light Green
+                "#FF5733", "#33FF57", "#3357FF"
         );
-        List<String> sizes = Arrays.asList(
-                "XS",   // Extra Small
-                "S",    // Small
-                "M",    // Medium
-                "L",    // Large
-                "XL",   // Extra Large
-                "XXL"  // Double Extra Large
-        );
+        List<String> sizes = Arrays.asList("L", "XL", "XXL");
+
         for (String color : colors) {
             for (String size : sizes) {
                 ProductDetails productDetails = ProductDetails.builder()
@@ -168,14 +170,12 @@ public class Runner implements CommandLineRunner {
     private void generateRating(Product product, List<User> users) {
         Random random = new Random();
         for (User user : users) {
-            if (ratingService.findByUser(user) == null) {
                 Rating rating = Rating.builder()
                         .grade(random.nextInt(1, 6))
                         .product(product)
                         .user(user)
                         .build();
                 ratingService.save(rating);
-            }
         }
     }
 

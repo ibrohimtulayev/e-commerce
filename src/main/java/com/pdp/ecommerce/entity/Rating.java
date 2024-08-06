@@ -18,7 +18,7 @@ public class Rating {
     @Column(name = "id", nullable = false)
     private UUID id;
     private Integer grade;
-    @OneToOne
+    @ManyToOne
     private User user;
     @ManyToOne
     private Product product;
