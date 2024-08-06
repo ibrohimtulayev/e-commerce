@@ -1,7 +1,6 @@
 package com.pdp.ecommerce.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.pdp.ecommerce.entity.Product;
 import com.pdp.ecommerce.entity.User;
 import com.pdp.ecommerce.model.dto.UserLoginDto;
 import com.pdp.ecommerce.model.dto.UserRegisterDto;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public interface UserService {
@@ -28,8 +28,16 @@ public interface UserService {
     List<User> findAllUsersByRole(String role);
 
     Optional<User> getSignedUser();
-    List<String> getUserSearchHistory();
+
+    HttpEntity<?> getUserSearchHistory();
+
     void updateUserSearchHistory(String keyword);
 
-    List<Product> getWishlist();
+    HttpEntity<?> getWishlist();
+
+    HttpEntity<?> addToWishlist(UUID productId);
+
+    HttpEntity<?> clearWishlist();
+
+    HttpEntity<?> removeFavouriteProduct(UUID id);
 }

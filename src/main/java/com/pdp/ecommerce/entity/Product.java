@@ -2,7 +2,9 @@ package com.pdp.ecommerce.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,9 +22,14 @@ public class Product {
     private String name;
     private String description;
     private String image;
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
     @OneToMany
     private List<ProductDetails> productDetails;
     @ManyToOne
     private Category category;
+
 
 }
