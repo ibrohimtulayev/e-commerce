@@ -73,5 +73,4 @@ public class ProductController {
     public HttpEntity<?> findAllProducts() {
         return productService.findAllWithCategory();
     }
-
 }

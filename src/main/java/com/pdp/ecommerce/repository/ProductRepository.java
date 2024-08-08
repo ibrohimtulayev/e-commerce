@@ -129,11 +129,12 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     @Query(value = "select description from product where id = :productId", nativeQuery = true)
     String findDescriptionById(UUID productId);
-    @Query(value = """
-            select p.id, p.name,p.image,c.name categoryName
-            from product p
-            join category c on p.category_id = c.id
-            """,nativeQuery = true)
-    List<CategoryProductProjection> findAllWithCategory();
-}
 
+    @Query(value = """
+    select p.id as productId, p.name, p.image, c.name as categoryName
+    from product p
+    join category c on p.category_id = c.id
+    """, nativeQuery = true)
+    List<CategoryProductProjection> findAllWithCategory();
+
+}

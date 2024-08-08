@@ -6,6 +6,6 @@ public interface CategoryProductProjection {
     UUID getProductId();
     String getName();
     String getImage();
-    String categoryName();
+    String getCategoryName();
 
 }
