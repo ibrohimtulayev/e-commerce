@@ -24,4 +24,9 @@ public class CategoryController {
     public HttpEntity<?> getParentCategories() {
         return categoryService.getAllCategories();
     }
+
+    @GetMapping("subcategories")
+    public HttpEntity<?> getSubCategories() {
+        return categoryService.getAllSubcategories();
+    }
 }

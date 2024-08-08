@@ -59,6 +59,16 @@ public class ProductController {
         return productService.getDetailedProductById(id);
     }
 
+    @GetMapping("rating-review")
+    public HttpEntity<?> getRatingReview(@RequestParam UUID productId) throws JsonProcessingException {
+        return productService.getRatingAndReviews(productId);
+    }
+
+    @GetMapping("description")
+    public HttpEntity<?> getProductDescription(@RequestParam UUID productId) {
+        return productService.getProductDescription(productId);
+    }
+
     @GetMapping("findAll")
     public HttpEntity<?> findAllProducts() {
         return productService.findAllWithCategory();

@@ -18,4 +18,6 @@ public interface CategoryService {
     List<Category> getVeryChildCategories();
 
     HttpEntity<?> getAllCategories();
+
+    HttpEntity<?> getAllSubcategories();
 }

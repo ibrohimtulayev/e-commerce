@@ -1,6 +1,7 @@
 package com.pdp.ecommerce.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pdp.ecommerce.entity.Product;
 import com.pdp.ecommerce.entity.User;
@@ -127,4 +128,20 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
+
+    @Override
+    public HttpEntity<?> getRatingAndReviews(UUID productId) throws JsonProcessingException {
+        List<String> ratingAndReviews = productRepository.findRatingAndReviewsByProductId(productId);
+        List<JsonNode> jsonNodes = new ArrayList<>();
+        for (String ratingAndReview : ratingAndReviews) {
+            jsonNodes.add(objectMapper.readTree(ratingAndReview));
+        }
+        return ResponseEntity.ok(jsonNodes);
+    }
+
+    @Override
+    public HttpEntity<?> getProductDescription(UUID productId) {
+        String description = productRepository.findDescriptionById(productId);
+        return ResponseEntity.ok(description);
+    }
 }
