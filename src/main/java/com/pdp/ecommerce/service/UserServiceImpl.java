@@ -11,6 +11,7 @@ import com.pdp.ecommerce.model.dto.TokenDto;
 import com.pdp.ecommerce.model.dto.UserLoginDto;
 import com.pdp.ecommerce.model.dto.UserRegisterDto;
 import com.pdp.ecommerce.model.projection.ProductProjection;
+import com.pdp.ecommerce.repository.AddressRepository;
 import com.pdp.ecommerce.repository.ProductRepository;
 import com.pdp.ecommerce.repository.UserRepository;
 import com.pdp.ecommerce.security.JwtUtils;
@@ -49,6 +50,7 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
     private AuthenticationManager authenticationManager;
     private final ProductRepository productRepository;
+    private AddressRepository addressRepository;
 
     @Autowired
     public void setPasswordEncoder(@Lazy PasswordEncoder passwordEncoder) {
@@ -218,7 +220,12 @@ public class UserServiceImpl implements UserService {
         Optional<User> signedUser = getSignedUser();
         if (signedUser.isPresent()) {
             User user = signedUser.get();
-            user.setAddress(new Address(lat,lon));
+            Address address = Address.builder()
+                    .latitude(lat)
+                    .longitude(lon)
+                            .build();
+            addressRepository.save(address);
+            user.setAddress(address);
             userRepository.save(user);
             return ResponseEntity.ok("success");
         }
@@ -233,6 +240,10 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    @Autowired
+    public void setAddressRepository(AddressRepository addressRepository) {
+        this.addressRepository = addressRepository;
+    }
 }
 
 
