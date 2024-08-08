@@ -44,4 +44,9 @@ public class CategoryServiceImpl implements CategoryService {
         return ResponseEntity.ok(categories);
     }
 
+    @Override
+    public HttpEntity<?> getAllSubcategories() {
+        List<Category> subcategories = categoryRepository.findAllByParentCategoryIdIsNotNull();
+        return ResponseEntity.ok(subcategories);
+    }
 }

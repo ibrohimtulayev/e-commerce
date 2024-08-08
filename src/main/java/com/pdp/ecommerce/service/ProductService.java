@@ -34,4 +34,8 @@ public interface ProductService {
 
 
     HttpEntity<?> getDetailedProductById(UUID id) throws JsonProcessingException;
+
+    HttpEntity<?> getRatingAndReviews(UUID productId) throws JsonProcessingException;
+
+    HttpEntity<?> getProductDescription(UUID productId);
 }

@@ -102,5 +102,30 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 """, nativeQuery = true)
     String findDetailedProductById(UUID productId);
 
+    @Query(value = """
+            SELECT json_build_object(
+                           'username', u.email,
+                           'rating', r.grade,
+                           'comments', COALESCE(json_agg(json_build_object(
+                            'id', c.id,
+                            'description', c.description
+                                                         )) FILTER (WHERE c.id IS NOT NULL), '[]')
+                   ) AS product_details
+            FROM
+                product p
+                    JOIN
+                rating r ON p.id = r.product_id
+                    JOIN
+                users u ON r.user_id = u.id
+                    LEFT JOIN
+                comment c ON p.id = c.product_id AND r.user_id = c.user_id
+            WHERE
+                p.id = :productId
+            GROUP BY
+                u.email, r.grade, r.id;
+            """, nativeQuery = true)
+    List<String> findRatingAndReviewsByProductId(UUID productId);
 
+    @Query(value = "select description from product where id = :productId", nativeQuery = true)
+    String findDescriptionById(UUID productId);
 }

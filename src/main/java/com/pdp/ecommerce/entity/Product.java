@@ -30,6 +30,4 @@ public class Product {
     private List<ProductDetails> productDetails;
     @ManyToOne
     private Category category;
-
-
 }

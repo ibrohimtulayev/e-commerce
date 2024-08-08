@@ -35,5 +35,7 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
             ORDER BY c1.id;
                       """, nativeQuery = true)
     List<CategoryProjection> findAllCategories();
+
+    List<Category> findAllByParentCategoryIdIsNotNull();
 }
 

@@ -185,7 +185,7 @@ public class Runner implements CommandLineRunner {
                 Comment comment = Comment.builder()
                         .product(product)
                         .user(user)
-                        .description(faker.lorem().characters(10, 15))
+                        .description(faker.hipster().word())
                         .build();
                 commentService.save(comment);
             }
