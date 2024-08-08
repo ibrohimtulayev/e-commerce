@@ -19,6 +19,7 @@ public class BasketProduct {
     private UUID id;
     @OneToOne
     private ProductDetails productDetails;
+
     private int amount;
     @ManyToOne
     private User user;

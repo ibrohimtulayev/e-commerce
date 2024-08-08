@@ -22,7 +22,4 @@ public class OrderProduct {
     @ManyToOne
     private Order order;
 
-
-
-
 }

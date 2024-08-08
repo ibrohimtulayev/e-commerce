@@ -19,7 +19,9 @@ public class Card {
     @Column(name = "id", nullable = false)
     private UUID id;
     private String name;
-    private LocalDate expiryDate;
+    private String expiryDate;
     private String cardNumber;
     private Integer cvv;
+    private Double balance;
+    
 }

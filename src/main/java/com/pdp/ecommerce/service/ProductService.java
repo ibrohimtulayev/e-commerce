@@ -34,4 +34,7 @@ public interface ProductService {
 
 
     HttpEntity<?> getDetailedProductById(UUID id) throws JsonProcessingException;
+
+
+    HttpEntity<?> findAllWithCategory();
 }

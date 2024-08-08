@@ -59,4 +59,9 @@ public class ProductController {
         return productService.getDetailedProductById(id);
     }
 
+    @GetMapping("findAll")
+    public HttpEntity<?> findAllProducts() {
+        return productService.findAllWithCategory();
+    }
+
 }

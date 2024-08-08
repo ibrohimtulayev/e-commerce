@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pdp.ecommerce.entity.Product;
 import com.pdp.ecommerce.entity.User;
 import com.pdp.ecommerce.model.dto.SearchDto;
+import com.pdp.ecommerce.model.projection.CategoryProductProjection;
 import com.pdp.ecommerce.model.projection.ProductProjection;
 import com.pdp.ecommerce.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -118,4 +119,12 @@ public class ProductServiceImpl implements ProductService {
         String detailedProduct = productRepository.findDetailedProductById(id);
         return ResponseEntity.ok(objectMapper.readTree(detailedProduct));
     }
+
+    @Override
+    public HttpEntity<?> findAllWithCategory() {
+       List<CategoryProductProjection> all = productRepository.findAllWithCategory();
+       return ResponseEntity.ok(all);
+    }
+
+
 }

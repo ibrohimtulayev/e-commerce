@@ -40,4 +40,8 @@ public interface UserService {
     HttpEntity<?> clearWishlist();
 
     HttpEntity<?> removeFavouriteProduct(UUID id);
+
+    HttpEntity<?> changeAddress(Double lat, Double lon);
+
+    HttpEntity<?> getOrders();
 }

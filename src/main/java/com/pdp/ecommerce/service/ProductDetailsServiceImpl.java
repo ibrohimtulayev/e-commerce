@@ -1,11 +1,13 @@
 package com.pdp.ecommerce.service;
 
+import com.pdp.ecommerce.entity.Product;
 import com.pdp.ecommerce.entity.ProductDetails;
-import com.pdp.ecommerce.entity.ProductDetailsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,5 +22,15 @@ public class ProductDetailsServiceImpl implements ProductDetailsService{
     @Override
     public List<ProductDetails> saveAll(List<ProductDetails> productDetailsList) {
         return productDetailsRepository.saveAll(productDetailsList);
+    }
+
+    @Override
+    public Product findProduct(UUID productDetailsId) {
+        return productDetailsRepository.findProduct(productDetailsId);
+    }
+
+    @Override
+    public Optional<ProductDetails> findById(UUID productDetailId) {
+        return productDetailsRepository.findById(productDetailId);
     }
 }

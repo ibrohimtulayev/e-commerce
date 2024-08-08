@@ -1,6 +1,7 @@
 package com.pdp.ecommerce.repository;
 
 import com.pdp.ecommerce.entity.Product;
+import com.pdp.ecommerce.model.projection.CategoryProductProjection;
 import com.pdp.ecommerce.model.projection.ProductProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +34,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @Query(value = """
             SELECT distinct p.* FROM product p
             JOIN product_product_details ppd on p.id = ppd.product_id 
-            JOIN product_details pd ON ppd.product_details_id = pd.id
+            JOIN product_details pd ON ppd.product_details_id = pd.id           
             WHERE pd.gender = CAST(:gender AS VARCHAR)
             AND SIMILARITY(p.name, :keyword) > 0.2;
             """, nativeQuery = true)
@@ -102,5 +103,11 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 """, nativeQuery = true)
     String findDetailedProductById(UUID productId);
 
-
+    @Query(value = """
+            select p.id, p.name,p.image,c.name categoryName
+            from product p
+            join category c on p.category_id = c.id
+            """,nativeQuery = true)
+    List<CategoryProductProjection> findAllWithCategory();
 }
+

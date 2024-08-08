@@ -3,9 +3,7 @@ package com.pdp.ecommerce.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pdp.ecommerce.entity.Product;
-import com.pdp.ecommerce.entity.ProductDetailsRepository;
-import com.pdp.ecommerce.entity.User;
+import com.pdp.ecommerce.entity.*;
 import com.pdp.ecommerce.exception.UserAlreadyExistException;
 import com.pdp.ecommerce.exception.WrongConfirmationCodeException;
 import com.pdp.ecommerce.mapper.UserMapper;
@@ -21,6 +19,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -213,6 +212,26 @@ public class UserServiceImpl implements UserService {
         userRepository.save(currentUser);
         return ResponseEntity.status(HttpStatus.OK).body("success");
     }
+
+    @Override
+    public HttpEntity<?> changeAddress(Double lat, Double lon) {
+        Optional<User> signedUser = getSignedUser();
+        if (signedUser.isPresent()) {
+            User user = signedUser.get();
+            user.setAddress(new Address(lat,lon));
+            userRepository.save(user);
+            return ResponseEntity.ok("success");
+        }
+        else throw new RuntimeException("User is not signed in");
+    }
+
+    @Override
+    public HttpEntity<?> getOrders() {
+        User user = getSignedUser().orElseThrow(() -> new RuntimeException("User is not signed in"));
+//      List<Order>orders =  orderService.finByUserId(user.getId());
+      return null;
+    }
+
 
 }
 

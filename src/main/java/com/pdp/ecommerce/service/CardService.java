@@ -7,4 +7,6 @@ import org.springframework.stereotype.Service;
 
 public interface CardService {
     void save(Card card);
+
+    Card findByNumber(String cardNUmber);
 }

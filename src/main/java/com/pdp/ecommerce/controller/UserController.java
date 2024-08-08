@@ -35,5 +35,14 @@ public class UserController {
     public HttpEntity<?> removeFromWishlist(@PathVariable UUID id){
         return userService.removeFavouriteProduct(id);
     }
+
+    @PostMapping("/change-address")
+    public HttpEntity<?> changeAddress(@RequestParam Double lat, @RequestParam Double lon){
+        return userService.changeAddress(lat,lon);
+    }
+    @GetMapping("/orders")
+    public HttpEntity<?>getUserOrders(){
+        return userService.getOrders();
+    }
 }
 

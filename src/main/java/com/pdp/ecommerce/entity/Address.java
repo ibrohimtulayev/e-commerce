@@ -19,4 +19,9 @@ public class Address {
     private UUID id;
     private Double latitude;
     private Double longitude;
+
+    public Address(Double lat, Double lon) {
+        this.latitude = lat;
+        this.longitude = lon;
+    }
 }

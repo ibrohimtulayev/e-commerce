@@ -77,7 +77,7 @@ public class Runner implements CommandLineRunner {
     private void createCard(String name, String cardNumber, LocalDate expiryDate, int cvv) {
         Card card = Card.builder()
                 .name(name)
-                .expiryDate(expiryDate)
+                .expiryDate(String.valueOf(expiryDate))
                 .cardNumber(cardNumber)
                 .cvv(cvv)
                 .build();

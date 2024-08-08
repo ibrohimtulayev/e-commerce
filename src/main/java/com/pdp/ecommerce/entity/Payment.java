@@ -23,7 +23,7 @@ public class Payment {
     private User user;
     private Double amount;
     @CreationTimestamp
-    private LocalDate paymentDate;
+    private LocalDate paymentDate = LocalDate.now() ;
     @OneToOne
     private Order order;
 

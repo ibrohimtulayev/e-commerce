@@ -3,6 +3,7 @@ package com.pdp.ecommerce.service;
 import com.pdp.ecommerce.entity.Category;
 import com.pdp.ecommerce.entity.Discount;
 import com.pdp.ecommerce.entity.Product;
+import com.pdp.ecommerce.entity.ProductDetails;
 import com.pdp.ecommerce.repository.DiscountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ public class DiscountServiceImpl implements DiscountService{
     private final DiscountRepository discountRepository;
     private final CategoryService categoryService;
     private final ProductService productService;
+    private final ProductDetailsService productDetailsService;
 
     @Override
     public void save(Discount discount) {
@@ -54,5 +57,19 @@ public class DiscountServiceImpl implements DiscountService{
     @Override
     public HttpEntity<?> getDiscountEvent() {
         return null;
+    }
+
+    @Override
+    public Discount findById(UUID id) {
+       return discountRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public boolean isValid(Discount discount, ProductDetails productDetails) {
+       Product product = productDetailsService.findProduct(productDetails.getId());
+       if (discount.getEndDate().isBefore(LocalDateTime.now())&& discount.getProducts().contains(product)) {
+           return true;
+       }
+       return false;
     }
 }

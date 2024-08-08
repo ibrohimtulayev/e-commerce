@@ -20,15 +20,14 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.AUTO) // Change to AUTO or another suitable strategy
     @Column(name = "id", nullable = false)
     private UUID id;
-
     @ManyToOne
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private OrderStatusEnum status;
+    private OrderStatusEnum status = OrderStatusEnum.ACCEPTED;
 
     private LocalDateTime deliveryTime;
 
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 }
