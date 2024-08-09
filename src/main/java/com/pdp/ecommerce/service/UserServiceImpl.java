@@ -198,6 +198,8 @@ public class UserServiceImpl implements UserService {
         Optional<Product> product = productRepository.findById(productId);
         if (product.isPresent()) {
             getSignedUser().ifPresent(user -> user.getFavouriteProducts().add(product.get()));
+            User user = getSignedUser().get();
+            userRepository.save(user);
             return ResponseEntity.ok(product);
         } else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
@@ -206,6 +208,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public HttpEntity<?> clearWishlist() {
         getSignedUser().ifPresent(user -> user.getFavouriteProducts().clear());
+        User user = getSignedUser().get();
+        userRepository.save(user);
         return ResponseEntity.status(HttpStatus.OK).body("success");
     }
 
