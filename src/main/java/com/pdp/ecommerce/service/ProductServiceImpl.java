@@ -1,10 +1,15 @@
 package com.pdp.ecommerce.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pdp.ecommerce.entity.Product;
+import com.pdp.ecommerce.entity.ProductDetails;
 import com.pdp.ecommerce.entity.User;
+import com.pdp.ecommerce.entity.enums.GenderEnum;
+import com.pdp.ecommerce.model.dto.ProductCreateDto;
+import com.pdp.ecommerce.model.dto.ProductDetailsDto;
 import com.pdp.ecommerce.model.dto.SearchDto;
 import com.pdp.ecommerce.model.projection.CategoryProductProjection;
 import com.pdp.ecommerce.model.projection.ProductProjection;
@@ -13,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +33,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final UserService userService;
     private final ObjectMapper objectMapper;
+    private final CategoryService categoryService;
+    private final ProductDetailsRepository productDetailsRepository;
 
 
     @Override
@@ -143,5 +151,29 @@ public class ProductServiceImpl implements ProductService {
     public HttpEntity<?> getProductDescription(UUID productId) {
         String description = productRepository.findDescriptionById(productId);
         return ResponseEntity.ok(description);
+    }
+
+    @Override
+    public HttpEntity<?> createProduct(ProductCreateDto productDto, String imageUrl) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        List<ProductDetailsDto> prodDetailsDto = mapper.readValue(productDto.details(), new TypeReference<List<ProductDetailsDto>>() {});
+        List<ProductDetails> prodDetails = prodDetailsDto.stream().map(item -> ProductDetails.builder()
+                .quantity(item.quantity())
+                .size(item.size())
+                .color(item.color())
+                .price(item.price())
+                .gender(GenderEnum.valueOf(item.gender()))
+                .build()).toList();
+        List<ProductDetails> productDetails = productDetailsRepository.saveAll(prodDetails);
+
+        productRepository.save(Product.builder()
+                .category(categoryService.findById(productDto.categoryId()))
+                .image(imageUrl)
+                .name(productDto.productName())
+                .description(productDto.productDescription())
+                .productDetails(productDetails)
+                .build());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("created");
     }
 }

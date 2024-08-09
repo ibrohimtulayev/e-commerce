@@ -1,6 +1,7 @@
 package com.pdp.ecommerce.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.pdp.ecommerce.model.dto.ProductCreateDto;
 import com.pdp.ecommerce.model.dto.SearchDto;
 import com.pdp.ecommerce.service.ProductService;
 import com.pdp.ecommerce.service.aws.S3Service;
@@ -72,5 +73,12 @@ public class ProductController {
     @GetMapping("findAll")
     public HttpEntity<?> findAllProducts() {
         return productService.findAllWithCategory();
+    }
+
+    @CrossOrigin(origins = "*")
+    @PostMapping
+    public HttpEntity<?> addProduct(@RequestParam(required = false) MultipartFile image, ProductCreateDto productCreateDto) throws JsonProcessingException {
+        String imageUrl = s3Service.uploadFile(image);
+        return productService.createProduct(productCreateDto, imageUrl);
     }
 }

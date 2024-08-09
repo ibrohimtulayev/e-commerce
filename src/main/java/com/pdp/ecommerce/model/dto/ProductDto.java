@@ -1,7 +1,6 @@
 package com.pdp.ecommerce.model.dto;
 
 import lombok.Data;
-import lombok.Value;
 
 import java.io.Serializable;
 
