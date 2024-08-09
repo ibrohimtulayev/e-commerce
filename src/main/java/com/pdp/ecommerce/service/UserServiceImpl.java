@@ -12,6 +12,7 @@ import com.pdp.ecommerce.model.dto.UserLoginDto;
 import com.pdp.ecommerce.model.dto.UserRegisterDto;
 import com.pdp.ecommerce.model.projection.ProductProjection;
 import com.pdp.ecommerce.repository.AddressRepository;
+import com.pdp.ecommerce.repository.OrderRepository;
 import com.pdp.ecommerce.repository.ProductRepository;
 import com.pdp.ecommerce.repository.UserRepository;
 import com.pdp.ecommerce.security.JwtUtils;
@@ -51,6 +52,12 @@ public class UserServiceImpl implements UserService {
     private AuthenticationManager authenticationManager;
     private final ProductRepository productRepository;
     private AddressRepository addressRepository;
+    private  OrderService orderService;
+
+    @Autowired
+    public void setOrderService(@Lazy OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     @Autowired
     public void setPasswordEncoder(@Lazy PasswordEncoder passwordEncoder) {
@@ -199,7 +206,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public HttpEntity<?> clearWishlist() {
         getSignedUser().ifPresent(user -> user.getFavouriteProducts().clear());
-       return ResponseEntity.status(HttpStatus.OK).body("success");
+        return ResponseEntity.status(HttpStatus.OK).body("success");
     }
 
     @Override
@@ -223,20 +230,20 @@ public class UserServiceImpl implements UserService {
             Address address = Address.builder()
                     .latitude(lat)
                     .longitude(lon)
-                            .build();
+                    .build();
             addressRepository.save(address);
             user.setAddress(address);
             userRepository.save(user);
             return ResponseEntity.ok("success");
-        }
-        else throw new RuntimeException("User is not signed in");
+        } else throw new RuntimeException("User is not signed in");
     }
 
     @Override
+    @Transactional
     public HttpEntity<?> getOrders() {
         User user = getSignedUser().orElseThrow(() -> new RuntimeException("User is not signed in"));
-//      List<Order>orders =  orderService.finByUserId(user.getId());
-      return null;
+        return orderService.findByUserOrders(user.getId());
+
     }
 
 
@@ -244,6 +251,9 @@ public class UserServiceImpl implements UserService {
     public void setAddressRepository(AddressRepository addressRepository) {
         this.addressRepository = addressRepository;
     }
+
+
+
 }
 
 

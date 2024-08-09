@@ -2,6 +2,8 @@ package com.pdp.ecommerce.service;
 
 import com.pdp.ecommerce.entity.*;
 import com.pdp.ecommerce.model.dto.OrderDto;
+import com.pdp.ecommerce.model.projection.UserOrderProjection;
+import com.pdp.ecommerce.repository.BasketProductRepository;
 import com.pdp.ecommerce.repository.OrderProductRepository;
 import com.pdp.ecommerce.repository.OrderRepository;
 import com.pdp.ecommerce.repository.PaymentRepository;
@@ -33,6 +35,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductDetailsService productDetailsService;
     private final OrderProductRepository orderProductRepository;
     private final PaymentRepository paymentRepository;
+    private final BasketProductRepository basketProductRepository;
 
     @Override
     public void save(Order order) {
@@ -51,9 +54,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public HttpEntity<?> make(OrderDto orderDto) {
-        String cardNUmber = orderDto.cardNUmber();
+        String cardNUmber = orderDto.cardNumber();
         Card card = cardService.findByNumber(cardNUmber);
-        if (!isCardExpired(card.getExpiryDate())&&card.getBalance()>=orderDto.orderPrice()) {
+        if (!cardService.isCardExpired(card.getExpiryDate())&&card.getBalance()>=orderDto.orderPrice()) {
             Order order = Order.builder()
                     .user(userService.getSignedUser().orElseThrow(()->new RuntimeException("user not found")))
                     .deliveryTime(LocalDateTime.now().plusDays(2))
@@ -63,7 +66,13 @@ public class OrderServiceImpl implements OrderService {
             for (Map<Integer, UUID> map : maps) {
                 for (Map.Entry<Integer, UUID> entry : map.entrySet()) {
                     Integer amount = entry.getKey();
-                    UUID productDetailId = entry.getValue();
+                    UUID basketProductId = entry.getValue();
+                    Optional<BasketProduct> byId = basketProductRepository.findById(basketProductId);
+                    UUID productDetailId = null;
+                    if (byId.isPresent()) {
+                        BasketProduct basketProduct = byId.get();
+                        productDetailId = basketProduct.getProductDetails().getId();
+                    }
                     ProductDetails productDetails = productDetailsService.findById(productDetailId)
                             .orElseThrow(() -> new RuntimeException("ProductDetails not found"));
 
@@ -90,21 +99,13 @@ public class OrderServiceImpl implements OrderService {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong");
     }
 
+
     @Override
-    public List<Order> finByUserId(UUID id) {
-        return orderRepository.findByUserId(id);
+    public HttpEntity<?> findByUserOrders(UUID id) {
+        List<UserOrderProjection> orderByUser = orderRepository.findOrderByUser(id);
+        return ResponseEntity.ok(orderByUser);
     }
 
-    public static boolean isCardExpired(String cardExpiryDate) {
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
-            YearMonth cardExpiry = YearMonth.parse(cardExpiryDate, formatter);
-            YearMonth currentMonth = YearMonth.now();
-            return cardExpiry.isBefore(currentMonth);
-        } catch (DateTimeParseException e) {
-            System.out.println("Invalid date format. Please use MM/YY.");
-            return true;
-        }
-    }
+
 
 }

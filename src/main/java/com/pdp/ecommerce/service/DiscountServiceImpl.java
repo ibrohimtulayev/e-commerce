@@ -21,7 +21,6 @@ public class DiscountServiceImpl implements DiscountService{
     private final DiscountRepository discountRepository;
     private final CategoryService categoryService;
     private final ProductService productService;
-    private final ProductDetailsService productDetailsService;
 
     @Override
     public void save(Discount discount) {
@@ -61,15 +60,6 @@ public class DiscountServiceImpl implements DiscountService{
 
     @Override
     public Discount findById(UUID id) {
-       return discountRepository.findById(id).orElse(null);
-    }
-
-    @Override
-    public boolean isValid(Discount discount, ProductDetails productDetails) {
-       Product product = productDetailsService.findProduct(productDetails.getId());
-       if (discount.getEndDate().isBefore(LocalDateTime.now())&& discount.getProducts().contains(product)) {
-           return true;
-       }
-       return false;
+        return discountRepository.findById(id).orElse(null);
     }
 }

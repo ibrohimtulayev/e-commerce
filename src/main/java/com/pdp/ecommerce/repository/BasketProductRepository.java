@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface BasketProductRepository extends JpaRepository<BasketProduct, UUID> {
+
     void removeById(UUID id);
 
     @Query(value = """

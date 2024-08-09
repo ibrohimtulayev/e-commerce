@@ -16,6 +16,4 @@ public interface DiscountService {
     HttpEntity<?> getDiscountEvent();
     Discount findById(UUID id);
 
-    boolean isValid(Discount discount, ProductDetails productDetails);
-
 }

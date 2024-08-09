@@ -17,5 +17,6 @@ public interface OrderService {
 
     HttpEntity<?> make(OrderDto orderDto);
 
-    List<Order> finByUserId(UUID id);
+
+    HttpEntity<?> findByUserOrders(UUID id);
 }

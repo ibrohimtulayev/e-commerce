@@ -7,7 +7,7 @@ public interface ProductDetailsProjection {
     String getGender();
     String getSize();
     String getColor();
-    Integer getAmount();
+    Integer getProductAmount();
     Double getPrice();
     Double getDiscountAmount();
     String getProductName();
