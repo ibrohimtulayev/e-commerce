@@ -31,9 +31,9 @@ public class UserController {
       return userService.clearWishlist();
     }
 
-    @DeleteMapping("wishlist/{id}")
-    public HttpEntity<?> removeFromWishlist(@PathVariable UUID id){
-        return userService.removeFavouriteProduct(id);
+    @DeleteMapping("wishlist/{productId}")
+    public HttpEntity<?> removeFromWishlist(@PathVariable UUID productId){
+        return userService.removeFavouriteProduct(productId);
     }
 
     @PostMapping("/change-address")

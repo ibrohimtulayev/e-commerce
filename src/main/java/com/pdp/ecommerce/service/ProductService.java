@@ -15,8 +15,6 @@ import java.util.UUID;
 public interface ProductService {
     Product save(Product product);
 
-    HttpEntity<?> getRandomProducts();
-
     List<Product> getRandomProductsByCategoryId(UUID id, Integer count);
 
     HttpEntity<?> findByNameAndGender(SearchDto searchDto);

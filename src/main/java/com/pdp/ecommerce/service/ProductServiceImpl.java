@@ -43,12 +43,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public HttpEntity<?> getRandomProducts() {
-        int amount = 3;
-        return ResponseEntity.ok(productRepository.getRandomProducts(amount));
-    }
-
-    @Override
     public List<Product> getRandomProductsByCategoryId(UUID id, Integer amount) {
         return productRepository.getRandomProductsByCategoryId(id, amount);
     }

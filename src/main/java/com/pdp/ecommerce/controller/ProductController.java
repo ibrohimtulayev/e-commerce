@@ -19,11 +19,6 @@ public class ProductController {
     private final ProductService productService;
     private final S3Service s3Service;
 
-    @GetMapping("/random")
-    public HttpEntity<?> getRandomProduct() {
-        return productService.getRandomProducts();
-    }
-
     @PostMapping("/search")
     public HttpEntity<?> findProduct(@RequestBody SearchDto searchDto) {
         return  productService.findByNameAndGender(searchDto);
