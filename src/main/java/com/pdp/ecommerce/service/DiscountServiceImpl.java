@@ -1,19 +1,22 @@
 package com.pdp.ecommerce.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pdp.ecommerce.entity.Category;
 import com.pdp.ecommerce.entity.Discount;
 import com.pdp.ecommerce.entity.Product;
 import com.pdp.ecommerce.entity.ProductDetails;
+import com.pdp.ecommerce.model.dto.DiscountDto;
 import com.pdp.ecommerce.repository.DiscountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class DiscountServiceImpl implements DiscountService{
     private final CategoryService categoryService;
     private final ProductService productService;
     private final ProductDetailsService productDetailsService;
+    private final ObjectMapper mapper;
 
     @Override
     public void save(Discount discount) {
@@ -56,7 +60,8 @@ public class DiscountServiceImpl implements DiscountService{
 
     @Override
     public HttpEntity<?> getDiscountEvent() {
-        return null;
+        List<Discount> discounts = discountRepository.findAll();
+        return ResponseEntity.ok(discounts);
     }
 
     @Override
@@ -71,5 +76,34 @@ public class DiscountServiceImpl implements DiscountService{
            return true;
        }
        return false;
+    }
+
+    @Override
+    public HttpEntity<?> createDiscount(String imageUrl, DiscountDto discountDto) throws JsonProcessingException {
+        List<Discount> discounts = discountRepository.findAll();
+        for (Discount discount : discounts) {
+            if(discount.getEndDate().isAfter(LocalDateTime.now())){
+                discount.setEndDate(LocalDateTime.now());
+                discountRepository.save(discount);
+            }
+        }
+        String json = discountDto.selectedProductIds();
+        List<UUID> productIds = mapper.readValue(json, new TypeReference<List<UUID>>() {});
+        List<Product> products = productIds.stream().map(productService::findById).toList();
+        save(Discount.builder()
+                .image(imageUrl)
+                .startDate(discountDto.startDate())
+                .endDate(discountDto.endDate())
+                .description(discountDto.description())
+                .amount(discountDto.amount())
+                .products(products)
+                .build());
+        return ResponseEntity.status(HttpStatus.CREATED).body("created");
+    }
+
+    @Override
+    public HttpEntity<?> findCurrentDiscount() {
+        Discount discount = discountRepository.findCurrentDiscount();
+        return ResponseEntity.ok(discount);
     }
 }

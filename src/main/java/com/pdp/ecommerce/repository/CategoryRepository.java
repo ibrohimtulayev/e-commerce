@@ -21,8 +21,10 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
     List<Category> getVeryChildCategories();
 
     @Query(value = """
-            SELECT c1.id AS category_id,
-                   c1.name AS category_name,
+            SELECT c1.parent_category_id AS parent_id,
+                   c1.id AS id,
+                   c1.name AS name,
+                   c1.image AS image,
                    CASE
                        WHEN COUNT(c2.id) = 0 THEN NULL
                        ELSE ARRAY_AGG(c2.name)

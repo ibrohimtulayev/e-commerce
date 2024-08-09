@@ -27,4 +27,5 @@ public class Discount {
     private List<Category> categories;
     @ManyToMany
     private List<Product> products;
+    private String image;
 }

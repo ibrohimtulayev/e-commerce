@@ -1,6 +1,7 @@
 package com.pdp.ecommerce.service;
 
 import com.pdp.ecommerce.entity.Category;
+import com.pdp.ecommerce.model.dto.ProductCreateDto;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 
@@ -20,4 +21,6 @@ public interface CategoryService {
     HttpEntity<?> getAllCategories();
 
     HttpEntity<?> getAllSubcategories();
+
+    HttpEntity<?> createCategory(String imageUrl, ProductCreateDto.CategoryDto categoryDto);
 }

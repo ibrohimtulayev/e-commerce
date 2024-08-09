@@ -1,10 +1,12 @@
 package com.pdp.ecommerce.service;
 
 import com.pdp.ecommerce.entity.Category;
+import com.pdp.ecommerce.model.dto.ProductCreateDto;
 import com.pdp.ecommerce.model.projection.CategoryProjection;
 import com.pdp.ecommerce.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -48,5 +50,15 @@ public class CategoryServiceImpl implements CategoryService {
     public HttpEntity<?> getAllSubcategories() {
         List<Category> subcategories = categoryRepository.findAllByParentCategoryIdIsNotNull();
         return ResponseEntity.ok(subcategories);
+    }
+
+    @Override
+    public HttpEntity<?> createCategory(String imageUrl, ProductCreateDto.CategoryDto categoryDto) {
+        categoryRepository.save(Category.builder()
+                .name(categoryDto.name())
+                .image(imageUrl)
+                .parentCategoryId(categoryDto.parentCategoryId())
+                .build());
+        return ResponseEntity.status(HttpStatus.CREATED).body("created");
     }
 }
