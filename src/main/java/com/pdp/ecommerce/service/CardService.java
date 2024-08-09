@@ -9,4 +9,6 @@ public interface CardService {
     void save(Card card);
 
     Card findByNumber(String cardNUmber);
+
+    boolean isCardExpired(String expiryDate);
 }

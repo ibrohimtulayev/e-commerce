@@ -13,6 +13,5 @@ public interface BasketProductService {
 
     HttpEntity<?> remove(UUID id);
 
-
     List<BasketProduct> userBasketProduct();
 }

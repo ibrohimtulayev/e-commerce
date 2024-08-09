@@ -66,7 +66,7 @@ public class DiscountServiceImpl implements DiscountService{
 
     @Override
     public Discount findById(UUID id) {
-       return discountRepository.findById(id).orElse(null);
+        return discountRepository.findById(id).orElse(null);
     }
 
     @Override
