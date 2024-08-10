@@ -3,31 +3,27 @@ package com.pdp.ecommerce.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pdp.ecommerce.entity.*;
-import com.pdp.ecommerce.exception.UserAlreadyExistException;
-import com.pdp.ecommerce.exception.WrongConfirmationCodeException;
+import com.pdp.ecommerce.entity.Address;
+import com.pdp.ecommerce.entity.Product;
+import com.pdp.ecommerce.entity.User;
 import com.pdp.ecommerce.mapper.UserMapper;
 import com.pdp.ecommerce.model.dto.TokenDto;
 import com.pdp.ecommerce.model.dto.UserLoginDto;
 import com.pdp.ecommerce.model.dto.UserRegisterDto;
 import com.pdp.ecommerce.model.projection.ProductProjection;
 import com.pdp.ecommerce.repository.AddressRepository;
-import com.pdp.ecommerce.repository.OrderRepository;
 import com.pdp.ecommerce.repository.ProductRepository;
 import com.pdp.ecommerce.repository.UserRepository;
 import com.pdp.ecommerce.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,10 +32,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +45,7 @@ public class UserServiceImpl implements UserService {
     private AuthenticationManager authenticationManager;
     private final ProductRepository productRepository;
     private AddressRepository addressRepository;
-    private  OrderService orderService;
+    private OrderService orderService;
 
     @Autowired
     public void setOrderService(@Lazy OrderService orderService) {
@@ -81,17 +74,20 @@ public class UserServiceImpl implements UserService {
     public HttpEntity<?> register(UserRegisterDto userRegisterDto) {
         User user = userMapper.toEntity(userRegisterDto);
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new UserAlreadyExistException("User has already registered");
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("User has already registered");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         String token = jwtUtils.generateConfirmationToken(user);
-        return ResponseEntity.status(HttpStatus.OK).body(token);
+        Map<String, String> confirmationToken = Map.of("confirmationToken", token);
+        return ResponseEntity.status(HttpStatus.OK).body(confirmationToken);
     }
 
     @Override
-    public HttpEntity<?> checkVerificationCode(String code, String header) throws JsonProcessingException, BadRequestException {
+    @SneakyThrows
+    public HttpEntity<?> checkVerificationCode(String code, String header) {
         if (header == null || !header.startsWith("Confirmation")) {
-            throw new RuntimeException("Expected Confirmation token in the header!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Expected Confirmation token in the header!");
         }
         String token = header.substring(13);
         User user = jwtUtils.getUser(token);
@@ -99,25 +95,23 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
             return ResponseEntity.status(HttpStatus.CREATED).body("success");
         } else {
-            throw new WrongConfirmationCodeException("Entered code is wrong! Please, try again!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Entered code is wrong! Please, try again!");
         }
     }
 
     @Override
     public HttpEntity<?> login(UserLoginDto userLoginDto) {
-        try {
-            Authentication authenticate = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(userLoginDto.email(), userLoginDto.password())
-            );
-            User user = (User) authenticate.getPrincipal();
-            TokenDto tokenDto = new TokenDto(
-                    jwtUtils.generateToken(user),
-                    jwtUtils.generateRefreshToken(user)
-            );
-            return ResponseEntity.ok(tokenDto);
-        } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Email or password is incorrect!");
-        }
+        Authentication authenticate = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(userLoginDto.email(), userLoginDto.password())
+        );
+
+        User user = (User) authenticate.getPrincipal(); // Ensure the User class is correct
+        TokenDto tokenDto = new TokenDto(
+                jwtUtils.generateToken(user),
+                jwtUtils.generateRefreshToken(user)
+        );
+
+        return ResponseEntity.ok(tokenDto);
     }
 
     @Override
@@ -215,13 +209,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public ResponseEntity<String> removeFavouriteProduct(UUID id) {
+    public ResponseEntity<String> removeFavouriteProduct(UUID productId) {
         User currentUser = getSignedUser().orElseThrow(() -> new RuntimeException("User is not signed in"));
         List<Product> favouriteProducts = currentUser.getFavouriteProducts();
-        List<Product> newFavourite = favouriteProducts.stream()
-                .filter(product -> !product.getId().equals(id))
-                .toList();
-        currentUser.setFavouriteProducts(newFavourite);
+        Product product = productRepository.findById(productId).orElse(null);
+        favouriteProducts.remove(product);
+        currentUser.setFavouriteProducts(favouriteProducts);
         userRepository.save(currentUser);
         return ResponseEntity.status(HttpStatus.OK).body("success");
     }
@@ -255,7 +248,6 @@ public class UserServiceImpl implements UserService {
     public void setAddressRepository(AddressRepository addressRepository) {
         this.addressRepository = addressRepository;
     }
-
 
 
 }

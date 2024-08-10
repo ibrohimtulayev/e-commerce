@@ -29,10 +29,11 @@ public class User implements UserDetails {
     @ManyToOne
     private Address address;
     @OneToMany
-    private List<Product>favouriteProducts;
-
+    private List<Product> favouriteProducts;
     @Column(name = "search_history")
     private String searchHistoryString;
+    private boolean enabled;
+    private boolean accountNonLocked;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -42,5 +43,21 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return this.email;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return this.accountNonLocked;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.enabled = true;
+        this.accountNonLocked = true;
     }
 }

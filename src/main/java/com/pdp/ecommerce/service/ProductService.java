@@ -23,8 +23,6 @@ public interface ProductService {
 
     Product findOneFavouriteProductByUserId(UUID userId);
 
-    HttpEntity<?>  updateProductImage(UUID productId, String imageUrl);
-
     HttpEntity<?> getPagedProductsByCategory(int page, String categoryName);
 
     Product findById(UUID productId);
@@ -32,7 +30,7 @@ public interface ProductService {
     HttpEntity<?> filterBy(UUID categoryId, String filterBy);
 
 
-    HttpEntity<?> getDetailedProductById(UUID id) throws JsonProcessingException;
+    HttpEntity<?> getDetailedProductById(UUID id) ;
 
 
     HttpEntity<?> findAllWithCategory();

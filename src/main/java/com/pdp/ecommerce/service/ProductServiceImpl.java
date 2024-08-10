@@ -15,6 +15,7 @@ import com.pdp.ecommerce.model.projection.CategoryProductProjection;
 import com.pdp.ecommerce.model.projection.ProductProjection;
 import com.pdp.ecommerce.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
@@ -81,20 +82,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public HttpEntity<?> updateProductImage(UUID productId, String imageUrl) {
-        Optional<Product> byId = productRepository.findById(productId);
-        if (byId.isPresent()) {
-            Product product = byId.get();
-            product.setImage(imageUrl);
-            productRepository.save(product);
-            return ResponseEntity.ok(product);
-        } else {
-            throw new RuntimeException("Product not found");
-        }
-    }
-
-    @Override
     public HttpEntity<?> getPagedProductsByCategory(int page, String categoryName) {
+        if(page <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Page must be greater than 0");
+        }
+        page = page -1;
         Pageable pageable = PageRequest.of(page, 10); // 10 items per page
         return ResponseEntity.ok(productRepository.getPagedProductsByCategoryName(categoryName, pageable));
     }
@@ -107,7 +99,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public HttpEntity<?> filterBy(UUID categoryId, String filterBy) {
         List<ProductProjection> filteredProducts = switch (filterBy) {
-
             case "newly_added" -> productRepository.filterByNewlyAdded(categoryId);
             case "best_rating" -> productRepository.filterByRating(categoryId);
             default -> productRepository.findByCategoryId(categoryId);
@@ -116,19 +107,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-
     @Override
-    public HttpEntity<?> getDetailedProductById(UUID id) throws JsonProcessingException {
+    @SneakyThrows
+    public HttpEntity<?> getDetailedProductById(UUID id)  {
         String detailedProduct = productRepository.findDetailedProductById(id);
+        if(detailedProduct == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Not Found");
+        }
         return ResponseEntity.ok(objectMapper.readTree(detailedProduct));
     }
 
     @Override
     public HttpEntity<?> findAllWithCategory() {
-       List<CategoryProductProjection> all = productRepository.findAllWithCategory();
-       return ResponseEntity.ok(all);
+        List<CategoryProductProjection> all = productRepository.findAllWithCategory();
+        return ResponseEntity.ok(all);
     }
-
 
 
     @Override
@@ -150,7 +143,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public HttpEntity<?> createProduct(ProductCreateDto productDto, String imageUrl) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        List<ProductDetailsDto> prodDetailsDto = mapper.readValue(productDto.details(), new TypeReference<List<ProductDetailsDto>>() {});
+        List<ProductDetailsDto> prodDetailsDto = mapper.readValue(productDto.details(), new TypeReference<List<ProductDetailsDto>>() {
+        });
         List<ProductDetails> prodDetails = prodDetailsDto.stream().map(item -> ProductDetails.builder()
                 .quantity(item.quantity())
                 .size(item.size())
