@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -213,18 +214,26 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity.status(HttpStatus.OK).body("success");
     }
 
+
     @Override
     @Transactional
     public ResponseEntity<String> removeFavouriteProduct(UUID id) {
         User currentUser = getSignedUser().orElseThrow(() -> new RuntimeException("User is not signed in"));
-        List<Product> favouriteProducts = currentUser.getFavouriteProducts();
+
+        List<Product> favouriteProducts = new ArrayList<>(currentUser.getFavouriteProducts());
+
         List<Product> newFavourite = favouriteProducts.stream()
                 .filter(product -> !product.getId().equals(id))
-                .toList();
+                .collect(Collectors.toList());
+
         currentUser.setFavouriteProducts(newFavourite);
         userRepository.save(currentUser);
+
         return ResponseEntity.status(HttpStatus.OK).body("success");
     }
+
+
+
 
     @Override
     public HttpEntity<?> changeAddress(Double lat, Double lon) {
