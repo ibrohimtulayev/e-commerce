@@ -16,10 +16,9 @@ public class OrderProduct {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
-    @OneToOne
+    @ManyToOne
     private ProductDetails productDetails;
     private Integer amount;
     @ManyToOne
     private Order order;
-
 }

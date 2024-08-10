@@ -20,8 +20,8 @@ public class BasketProductController {
         return basketProductService.add(productDetailsId,amount);
     }
 
-    @GetMapping("/remove")
-    public HttpEntity<?> getAllBasketProducts(@RequestParam UUID id) {
+    @DeleteMapping("/remove")
+    public HttpEntity<?> removeBasketProduct(@RequestParam UUID id) {
         return basketProductService.remove(id);
 
     }

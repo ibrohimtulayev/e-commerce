@@ -40,10 +40,8 @@ public class BasketProductServiceImpl implements BasketProductService {
     }
 
     @Override
-    @Transactional
     public HttpEntity<?> remove(UUID id) {
-        basketProductRepository.removeById(id);
-
+        basketProductRepository.deleteById(id);
         return ResponseEntity.ok("success");
     }
 

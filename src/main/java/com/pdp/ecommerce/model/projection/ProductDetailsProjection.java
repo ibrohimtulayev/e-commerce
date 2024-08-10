@@ -5,6 +5,7 @@ import java.util.UUID;
 public interface ProductDetailsProjection {
 
     String getGender();
+    UUID getBasketProductId();
     String getSize();
     String getColor();
     Integer getProductAmount();

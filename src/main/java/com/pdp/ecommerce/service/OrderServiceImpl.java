@@ -47,8 +47,7 @@ public class OrderServiceImpl implements OrderService {
         Optional<User> signedUser = userService.getSignedUser();
         if (signedUser.isPresent()) {
             return ResponseEntity.ok(signedUser.get().getAddress());
-        }
-        else throw new RuntimeException("user not found");
+        } else throw new RuntimeException("user not found");
     }
 
     @Override
@@ -56,44 +55,47 @@ public class OrderServiceImpl implements OrderService {
     public HttpEntity<?> make(OrderDto orderDto) {
         String cardNUmber = orderDto.cardNumber();
         Card card = cardService.findByNumber(cardNUmber);
-        if (!cardService.isCardExpired(card.getExpiryDate())&&card.getBalance()>=orderDto.orderPrice()) {
+        if (!cardService.isCardExpired(card.getExpiryDate()) && card.getBalance() >= orderDto.orderPrice()) {
             Order order = Order.builder()
-                    .user(userService.getSignedUser().orElseThrow(()->new RuntimeException("user not found")))
+                    .user(userService.getSignedUser().orElseThrow(() -> new RuntimeException("user not found")))
                     .deliveryTime(LocalDateTime.now().plusDays(2))
                     .build();
             orderRepository.save(order);
-            List<Map<Integer, UUID>> maps = orderDto.productDetailIdWithAmount();
-            for (Map<Integer, UUID> map : maps) {
-                for (Map.Entry<Integer, UUID> entry : map.entrySet()) {
-                    Integer amount = entry.getKey();
-                    UUID basketProductId = entry.getValue();
-                    Optional<BasketProduct> byId = basketProductRepository.findById(basketProductId);
-                    UUID productDetailId = null;
-                    if (byId.isPresent()) {
-                        BasketProduct basketProduct = byId.get();
-                        productDetailId = basketProduct.getProductDetails().getId();
-                    }
-                    ProductDetails productDetails = productDetailsService.findById(productDetailId)
-                            .orElseThrow(() -> new RuntimeException("ProductDetails not found"));
 
+            for (UUID basketProductId : orderDto.basketProductsId()) {
+                Optional<BasketProduct> byId = basketProductRepository.findById(basketProductId);
+                UUID productDetailId = null;
+                int amount = 0;
+                if (byId.isPresent()) {
+                    BasketProduct basketProduct = byId.get();
+                     amount = basketProduct.getAmount();
+                    productDetailId = basketProduct.getProductDetails().getId();
+                    basketProductRepository.removeById(basketProduct.getId());
+                }else throw new RuntimeException("basket product not found");
+                ProductDetails productDetails = productDetailsService.findById(productDetailId)
+                        .orElseThrow(() -> new RuntimeException("ProductDetails not found"));
+                if (amount <= productDetails.getQuantity()) {
                     OrderProduct orderProduct = OrderProduct.builder()
                             .productDetails(productDetails)
                             .amount(amount)
                             .order(order)
                             .build();
                     orderProductRepository.save(orderProduct);
+                    productDetails.setQuantity(productDetails.getQuantity() - amount);
+                    productDetailsService.save(productDetails);
+                } else throw new RuntimeException("Product not enough for order try less");
 
-                }
             }
             card.setBalance(card.getBalance() - orderDto.orderPrice());
             cardService.save(card);
             Payment payment = Payment.builder()
                     .order(order)
-                    .user(userService.getSignedUser().orElseThrow(()->new RuntimeException("user not found")))
+                    .user(userService.getSignedUser().orElseThrow(() -> new RuntimeException("user not found")))
                     .amount(orderDto.orderPrice())
                     .card(card)
                     .build();
             paymentRepository.save(payment);
+
             return ResponseEntity.ok("Order created successfully!");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong");
@@ -105,7 +107,6 @@ public class OrderServiceImpl implements OrderService {
         List<UserOrderProjection> orderByUser = orderRepository.findOrderByUser(id);
         return ResponseEntity.ok(orderByUser);
     }
-
 
 
 }

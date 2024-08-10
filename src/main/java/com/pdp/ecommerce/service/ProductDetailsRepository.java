@@ -20,9 +20,10 @@ public interface ProductDetailsRepository extends JpaRepository<ProductDetails, 
     Product findProduct(@Param("productDetailsId") UUID productDetailsId);
 
     @Query(value = """
-            select pd.*,p.name as productName, d.amount as discountAmount, pd.quantity as productAmount from product_details pd
+            select pd.*,p.name as productName, d.amount as discountAmount, bp.amount as productAmount,bp.id as basketProductid from product_details pd
                       join public.product_product_details ppd on pd.id = ppd.product_details_id
                       join public.product p on p.id = ppd.product_id
+                join basket_product bp on pd.id = bp.product_details_id
                       left join discount_products dp on p.id = dp.products_id
                       left join discount d on dp.discount_id = d.id
             where pd.id =:productDetailsId
