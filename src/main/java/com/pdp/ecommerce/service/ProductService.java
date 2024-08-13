@@ -1,6 +1,5 @@
 package com.pdp.ecommerce.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pdp.ecommerce.entity.Product;
 import com.pdp.ecommerce.model.dto.ProductCreateDto;
 import com.pdp.ecommerce.model.dto.SearchDto;
@@ -35,9 +34,9 @@ public interface ProductService {
 
     HttpEntity<?> findAllWithCategory();
 
-    HttpEntity<?> getRatingAndReviews(UUID productId) throws JsonProcessingException;
+    HttpEntity<?> getRatingAndReviews(UUID productId);
 
     HttpEntity<?> getProductDescription(UUID productId);
 
-    HttpEntity<?> createProduct(ProductCreateDto productCreateDto, String imageUrl) throws JsonProcessingException;
+    HttpEntity<?> createProduct(ProductCreateDto productCreateDto, String imageUrl);
 }

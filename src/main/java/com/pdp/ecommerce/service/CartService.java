@@ -5,6 +5,7 @@ import com.pdp.ecommerce.entity.ProductDetails;
 import com.pdp.ecommerce.model.projection.ProductDetailsProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,13 +19,13 @@ public class CartService {
 
 
     public HttpEntity<?> showAll() {
-       List<BasketProduct> basketProductList = basketProductService.userBasketProduct();
-        List<ProductDetailsProjection>productDetailsProjection = new ArrayList<>();
+        List<BasketProduct> basketProductList = basketProductService.userBasketProduct();
+        List<ProductDetailsProjection> productDetailsProjection = new ArrayList<>();
         for (BasketProduct basketProduct : basketProductList) {
             ProductDetails productDetails = basketProduct.getProductDetails();
             ProductDetailsProjection projection = productDetailsRepository.findBy(productDetails.getId());
             productDetailsProjection.add(projection);
         }
-       return new HttpEntity<>(productDetailsProjection);
+        return ResponseEntity.ok(productDetailsProjection);
     }
 }

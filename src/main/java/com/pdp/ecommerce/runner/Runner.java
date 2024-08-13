@@ -5,6 +5,7 @@ import com.pdp.ecommerce.entity.*;
 import com.pdp.ecommerce.entity.enums.GenderEnum;
 import com.pdp.ecommerce.entity.enums.RoleEnum;
 import com.pdp.ecommerce.service.*;
+import com.pdp.ecommerce.service.aws.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -28,6 +29,7 @@ public class Runner implements CommandLineRunner {
     private final RatingService ratingService;
     private final CommentService commentService;
     private final Faker faker = new Faker();
+    private final S3Service s3Service;
 
     @Value("${spring.jpa.hibernate.ddl-auto}")
     private String ddl;
@@ -116,24 +118,26 @@ public class Runner implements CommandLineRunner {
             Category savedCategory = Category.builder()
                     .id(UUID.randomUUID())
                     .name(categoryName)
+                    .image("https://my-bucket-personal-aws.s3.eu-north-1.amazonaws.com/2024-08-13/category.jpg")
                     .build();
+
             return categoryService.save(savedCategory);
         } catch (Exception e) {
             return null; // Handle exception appropriately
         }
     }
 
-    private void generateProducts(Category category, int count) {
+    private void generateProducts(Category category, int count)   {
         for (int i = 0; i < count; i++) {
             List<ProductDetails> productDetailsList = createProductDetailsList();
             List<ProductDetails> savedProductDetailsList = productDetailsService.saveAll(productDetailsList);
-
             Product product = Product.builder()
                     .id(UUID.randomUUID())
                     .name(faker.commerce().productName())
                     .description(faker.lorem().sentence())
                     .category(category)
                     .productDetails(savedProductDetailsList)
+                    .image("https://my-bucket-personal-aws.s3.eu-north-1.amazonaws.com/2024-08-13/product.jpg")
                     .build();
 
             Product savedProduct = productService.save(product);

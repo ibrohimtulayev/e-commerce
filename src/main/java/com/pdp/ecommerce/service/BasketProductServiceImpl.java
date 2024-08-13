@@ -26,23 +26,19 @@ public class BasketProductServiceImpl implements BasketProductService {
                 .orElseThrow(() -> new RuntimeException("Product details not found"));
         User user = userService.getSignedUser()
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-
-
-
-
         BasketProduct basketProduct = BasketProduct.builder()
                 .productDetails(productDetails)
                 .user(user)
                 .amount(amount)
                 .build();
-        return ResponseEntity.ok(basketProductRepository.save(basketProduct));
+        basketProductRepository.save(basketProduct);
+        return ResponseEntity.ok("Basket product successfully added!");
     }
 
     @Override
     public HttpEntity<?> remove(UUID id) {
         basketProductRepository.deleteById(id);
-        return ResponseEntity.ok("success");
+        return ResponseEntity.ok("Basket product successfully removed!");
     }
 
     @Override

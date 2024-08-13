@@ -7,6 +7,7 @@ import com.pdp.ecommerce.entity.Address;
 import com.pdp.ecommerce.entity.Product;
 import com.pdp.ecommerce.entity.User;
 import com.pdp.ecommerce.mapper.UserMapper;
+import com.pdp.ecommerce.model.dto.ConfirmationTokenDto;
 import com.pdp.ecommerce.model.dto.TokenDto;
 import com.pdp.ecommerce.model.dto.UserLoginDto;
 import com.pdp.ecommerce.model.dto.UserRegisterDto;
@@ -79,7 +80,7 @@ public class UserServiceImpl implements UserService {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         String token = jwtUtils.generateConfirmationToken(user);
-        Map<String, String> confirmationToken = Map.of("confirmationToken", token);
+        ConfirmationTokenDto confirmationToken = new ConfirmationTokenDto(token);
         return ResponseEntity.status(HttpStatus.OK).body(confirmationToken);
     }
 
@@ -93,7 +94,7 @@ public class UserServiceImpl implements UserService {
         User user = jwtUtils.getUser(token);
         if (jwtUtils.checkVerificationCode(code, token)) {
             userRepository.save(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body("success");
+            return ResponseEntity.status(HttpStatus.CREATED).body("User successfully created!");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Entered code is wrong! Please, try again!");
         }
@@ -132,6 +133,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @SneakyThrows
     public HttpEntity<?> getUserSearchHistory() {
         Optional<User> userOpt = getSignedUser();
         if (userOpt.isPresent()) {
@@ -144,7 +146,7 @@ public class UserServiceImpl implements UserService {
                     int size = fullHistory.size();
                     return ResponseEntity.ok(size > 10 ? fullHistory.subList(size - 10, size) : fullHistory);
                 } catch (JsonProcessingException e) {
-                    log.error("Error processing JSON", e);
+                    throw new Exception("Error processing JSON");
                 }
             }
         }
@@ -194,7 +196,7 @@ public class UserServiceImpl implements UserService {
             getSignedUser().ifPresent(user -> user.getFavouriteProducts().add(product.get()));
             User user = getSignedUser().get();
             userRepository.save(user);
-            return ResponseEntity.ok(product);
+            return ResponseEntity.ok("Product added to wishlist successfully.");
         } else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
     }
@@ -204,7 +206,7 @@ public class UserServiceImpl implements UserService {
         getSignedUser().ifPresent(user -> user.getFavouriteProducts().clear());
         User user = getSignedUser().get();
         userRepository.save(user);
-        return ResponseEntity.status(HttpStatus.OK).body("success");
+        return ResponseEntity.status(HttpStatus.OK).body("Wishlist cleared successfully.");
     }
 
 
@@ -217,14 +219,13 @@ public class UserServiceImpl implements UserService {
         favouriteProducts.remove(product);
         currentUser.setFavouriteProducts(favouriteProducts);
         userRepository.save(currentUser);
-        return ResponseEntity.status(HttpStatus.OK).body("success");
+        return ResponseEntity.status(HttpStatus.OK).body("Product removed from wishlist successfully.");
     }
 
     @Override
     public HttpEntity<?> changeAddress(Double lat, Double lon) {
         Optional<User> signedUser = getSignedUser();
-        if (signedUser.isPresent()) {
-            User user = signedUser.get();
+            User user = signedUser.orElseThrow(()->new RuntimeException("use not found"));
             Address address = Address.builder()
                     .latitude(lat)
                     .longitude(lon)
@@ -232,8 +233,7 @@ public class UserServiceImpl implements UserService {
             addressRepository.save(address);
             user.setAddress(address);
             userRepository.save(user);
-            return ResponseEntity.ok("success");
-        } else throw new RuntimeException("User is not signed in");
+            return ResponseEntity.ok("Address updated successfully.");
     }
 
     @Override

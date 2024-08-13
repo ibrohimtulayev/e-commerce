@@ -26,7 +26,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<Category> getRandomCategories() {
         int amount = 4;
-       return categoryRepository.getRandomCategories(amount);
+        return categoryRepository.getRandomCategories(amount);
     }
 
     @Override
@@ -59,6 +59,6 @@ public class CategoryServiceImpl implements CategoryService {
                 .image(imageUrl)
                 .parentCategoryId(categoryDto.parentCategoryId())
                 .build());
-        return ResponseEntity.status(HttpStatus.CREATED).body("created");
+        return ResponseEntity.status(HttpStatus.CREATED).body("Category successfully created!");
     }
 }

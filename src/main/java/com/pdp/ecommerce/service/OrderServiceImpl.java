@@ -14,14 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,9 +39,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public HttpEntity<?> deliveryDestination() {
         Optional<User> signedUser = userService.getSignedUser();
-        if (signedUser.isPresent()) {
-            return ResponseEntity.ok(signedUser.get().getAddress());
-        } else throw new RuntimeException("user not found");
+        return ResponseEntity.ok(signedUser.orElseThrow(()->new RuntimeException("user not found")).getAddress());
     }
 
     @Override
@@ -68,10 +60,12 @@ public class OrderServiceImpl implements OrderService {
                 int amount = 0;
                 if (byId.isPresent()) {
                     BasketProduct basketProduct = byId.get();
-                     amount = basketProduct.getAmount();
+                    amount = basketProduct.getAmount();
                     productDetailId = basketProduct.getProductDetails().getId();
                     basketProductRepository.removeById(basketProduct.getId());
-                }else throw new RuntimeException("basket product not found");
+                } else{
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("basket product not found");
+                }
                 ProductDetails productDetails = productDetailsService.findById(productDetailId)
                         .orElseThrow(() -> new RuntimeException("ProductDetails not found"));
                 if (amount <= productDetails.getQuantity()) {
@@ -83,7 +77,9 @@ public class OrderServiceImpl implements OrderService {
                     orderProductRepository.save(orderProduct);
                     productDetails.setQuantity(productDetails.getQuantity() - amount);
                     productDetailsService.save(productDetails);
-                } else throw new RuntimeException("Product not enough for order try less");
+                } else{
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product not enough for order try less");
+                }
 
             }
             card.setBalance(card.getBalance() - orderDto.orderPrice());

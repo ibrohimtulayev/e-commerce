@@ -1,6 +1,5 @@
 package com.pdp.ecommerce.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -125,7 +124,12 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public HttpEntity<?> getRatingAndReviews(UUID productId) throws JsonProcessingException {
+    @SneakyThrows
+    public HttpEntity<?> getRatingAndReviews(UUID productId){
+        Optional<Product> byId = productRepository.findById(productId);
+        if(byId.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Not Found");
+        }
         List<String> ratingAndReviews = productRepository.findRatingAndReviewsByProductId(productId);
         List<JsonNode> jsonNodes = new ArrayList<>();
         for (String ratingAndReview : ratingAndReviews) {
@@ -136,12 +140,17 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public HttpEntity<?> getProductDescription(UUID productId) {
+        Optional<Product> byId = productRepository.findById(productId);
+        if(byId.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+        }
         String description = productRepository.findDescriptionById(productId);
         return ResponseEntity.ok(description);
     }
 
     @Override
-    public HttpEntity<?> createProduct(ProductCreateDto productDto, String imageUrl) throws JsonProcessingException {
+    @SneakyThrows
+    public HttpEntity<?> createProduct(ProductCreateDto productDto, String imageUrl) {
         ObjectMapper mapper = new ObjectMapper();
         List<ProductDetailsDto> prodDetailsDto = mapper.readValue(productDto.details(), new TypeReference<List<ProductDetailsDto>>() {
         });
@@ -162,6 +171,6 @@ public class ProductServiceImpl implements ProductService {
                 .productDetails(productDetails)
                 .build());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("created");
+        return ResponseEntity.status(HttpStatus.CREATED).body("Product successfully created.");
     }
 }

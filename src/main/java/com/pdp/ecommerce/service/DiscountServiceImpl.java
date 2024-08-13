@@ -1,22 +1,24 @@
 package com.pdp.ecommerce.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pdp.ecommerce.entity.Category;
 import com.pdp.ecommerce.entity.Discount;
 import com.pdp.ecommerce.entity.Product;
-import com.pdp.ecommerce.entity.ProductDetails;
 import com.pdp.ecommerce.model.dto.DiscountDto;
 import com.pdp.ecommerce.repository.DiscountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -70,16 +72,8 @@ public class DiscountServiceImpl implements DiscountService{
     }
 
     @Override
-    public boolean isValid(Discount discount, ProductDetails productDetails) {
-       Product product = productDetailsService.findProduct(productDetails.getId());
-       if (discount.getEndDate().isBefore(LocalDateTime.now())&& discount.getProducts().contains(product)) {
-           return true;
-       }
-       return false;
-    }
-
-    @Override
-    public HttpEntity<?> createDiscount(String imageUrl, DiscountDto discountDto) throws JsonProcessingException {
+    @SneakyThrows
+    public HttpEntity<?> createDiscount(String imageUrl, DiscountDto discountDto) {
         List<Discount> discounts = discountRepository.findAll();
         for (Discount discount : discounts) {
             if(discount.getEndDate().isAfter(LocalDateTime.now())){
@@ -98,7 +92,7 @@ public class DiscountServiceImpl implements DiscountService{
                 .amount(discountDto.amount())
                 .products(products)
                 .build());
-        return ResponseEntity.status(HttpStatus.CREATED).body("created");
+        return ResponseEntity.status(HttpStatus.CREATED).body("Discount event successfully created!");
     }
 
     @Override

@@ -5,7 +5,6 @@ import com.pdp.ecommerce.model.dto.OrderDto;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -16,7 +15,6 @@ public interface OrderService {
     HttpEntity<?> deliveryDestination();
 
     HttpEntity<?> make(OrderDto orderDto);
-
 
     HttpEntity<?> findByUserOrders(UUID id);
 }
